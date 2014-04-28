@@ -10,7 +10,7 @@ http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	</parent>
 
 	<groupId>org.n52.wps-extension</groupId>
-	<artifactId>process-extensions</artifactId>
+	<artifactId>enviroCar-process-extensions</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 
 	<inceptionYear>2013</inceptionYear>
