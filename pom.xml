@@ -7,8 +7,8 @@
 		<version>5.6.6</version>
 	</parent>
 
-	<groupId>org.n52.wps-extension</groupId>
-	<artifactId>process-extensions</artifactId>
+	<groupId>org.n52.wps.tamisn</groupId>
+	<artifactId>talsim-process</artifactId>
 	<version>0.0.2-SNAPSHOT</version>
 
 	<inceptionYear>2013</inceptionYear>
@@ -26,15 +26,56 @@
 		<developerConnection>scm:git:ssh://git@github.com/52North/WPS-Extension-Skeleton.git</developerConnection>
 	</scm>
 	<dependencies>
+<!-- 		<dependency>	 -->
+<!-- 		    <groupId>org.n52.wps</groupId> -->
+<!-- 	        <artifactId>52n-wps-io-sensorweb</artifactId> -->
+<!-- 	        <version>1.0.0-SNAPSHOT</version> -->
+<!-- 		</dependency> -->
+		<dependency>
+			<groupId>org.n52.wps</groupId>
+			<artifactId>52n-wps-grass</artifactId>
+			<version>4.0.0-SNAPSHOT</version>
+		</dependency>
 		<dependency>
 			<groupId>org.n52.wps</groupId>
 			<artifactId>52n-wps-io</artifactId>
-			<version>3.2.0</version>
+			<version>4.0.0-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.n52.wps</groupId>
+			<artifactId>52n-wps-commons</artifactId>
+			<version>4.0.0-SNAPSHOT</version>
+			<classifier>tests</classifier>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.n52.wps</groupId>
+			<artifactId>52n-wps-configuration-api</artifactId>
+			<version>4.0.0-SNAPSHOT</version>
+			<classifier>tests</classifier>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-test</artifactId>
+			<version>4.1.6.RELEASE</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.n52.wps</groupId>
+			<artifactId>52n-wps-io-impl</artifactId>
+			<version>4.0.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>org.n52.wps</groupId>
 			<artifactId>52n-wps-algorithm</artifactId>
-			<version>3.2.0</version>
+			<version>4.0.0-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>javax.servlet-api</artifactId>
+			<version>3.1.0</version>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>
@@ -76,4 +117,19 @@
 			<url>http://52north.org/maven/repo/releases/</url>
 		</repository>
 	</repositories>
+	
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <compilerVersion>1.8</compilerVersion>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                </configuration>
+            </plugin>
+        </plugins>
+     </build>
 </project>
