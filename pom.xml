@@ -47,6 +47,12 @@
 			<version>4.0.0-SNAPSHOT</version>
 			<classifier>tests</classifier>
 			<scope>test</scope>
+			<exclusions>
+				<exclusion>
+					<artifactId>jackson-databind</artifactId>
+					<groupId>com.fasterxml.jackson.core</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.n52.wps</groupId>
@@ -54,11 +60,29 @@
 			<version>4.0.0-SNAPSHOT</version>
 			<classifier>tests</classifier>
 			<scope>test</scope>
+			<exclusions>
+				<exclusion>
+					<artifactId>jackson-databind</artifactId>
+					<groupId>com.fasterxml.jackson.core</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-test</artifactId>
 			<version>4.1.6.RELEASE</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-core</artifactId>
+			<version>2.5.3</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+			<version>2.5.3</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -70,6 +94,13 @@
 			<groupId>org.n52.wps</groupId>
 			<artifactId>52n-wps-algorithm</artifactId>
 			<version>4.0.0-SNAPSHOT</version>
+		</dependency>
+        <dependency>
+			<groupId>org.n52.iceland</groupId>
+			<artifactId>statistics</artifactId>
+			<version>1.2.0-SNAPSHOT</version>
+			<classifier>tests</classifier>
+			<scope>test</scope>
 		</dependency>
 		<dependency>
             <groupId>org.n52.sensorweb.sos</groupId>

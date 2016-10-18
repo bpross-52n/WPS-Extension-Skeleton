@@ -1,0 +1,388 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:ctx="http://www.springframework.org/schema/context"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans-4.1.xsd
+                           http://www.springframework.org/schema/context
+                           http://www.springframework.org/schema/context/spring-context-4.1.xsd">
+    <ctx:annotation-config />
+
+
+    <bean class="org.n52.iceland.config.spring.LifecycleBeanPostProcessor">
+        <description>This calls Constructable#init and Destroyable#destroy for all beans.</description>
+    </bean>
+
+    <bean class="org.n52.iceland.config.spring.ConfiguringBeanPostProcessor">
+        <description>This calls SettingsManager#configure for all beans.</description>
+    </bean>
+
+
+    <bean id="exceptionLogger" class="org.n52.iceland.service.ExceptionLogger" />
+
+    <bean id="kvpBinding" class="org.n52.iceland.binding.kvp.KvpBinding" />
+    <bean id="poxBinding" class="org.n52.iceland.binding.pox.PoxBinding" />
+    <bean id="jsonBinding" class="org.n52.iceland.binding.json.JSONBinding" />
+    <bean id="soapBinding" class="org.n52.iceland.binding.soap.SoapBinding" />
+    
+<!--     <bean id="settingsService" class="org.n52.iceland.config.SettingsServiceImpl" /> -->
+	<bean id="settingsService" class="org.n52.iceland.statistics.mock.MockSettingsService" />
+	<bean id="servletContext" class="org.n52.iceland.statistics.mock.MockServletContext" />
+	<bean id="serviceBus" class="org.n52.iceland.event.ServiceEventBus" />
+
+    <bean id="serviceMetadataRepository" class="org.n52.iceland.ogc.ows.ServiceMetadataRepositoryImpl" />
+
+	<bean id="bindingRepository" class="org.n52.iceland.binding.BindingRepository" />
+	<bean id="codingRepository" class="org.n52.iceland.coding.CodingRepository" />
+	<bean id="supportedTypeRepository" class="org.n52.iceland.coding.SupportedTypeRepository" />
+	<bean id="owsExtendedCapabilitiesRepository" class="org.n52.iceland.ogc.ows.OwsExtendedCapabilitiesProviderRepository" />
+	<bean id="offeringExtensionRepository" class="org.n52.iceland.ogc.swes.OfferingExtensionRepository" />
+	<bean id="capabilitiesExtensionRepository" class="org.n52.iceland.ogc.sos.CapabilitiesExtensionRepository" />
+	<bean id="i18nDaoRepository" class="org.n52.iceland.i18n.I18NDAORepository" />
+	<bean id="schemaRepository" class="org.n52.iceland.coding.encode.SchemaRepository" />
+	<bean id="operationHandlerRepository" class="org.n52.iceland.ds.OperationHandlerRepository" />
+	<bean id="requestResponseModifierRepository" class="org.n52.iceland.convert.RequestResponseModifierRepository" />
+	<bean id="responseWriterRepository" class="org.n52.iceland.coding.encode.ResponseWriterRepository" />
+	<bean id="serviceOperatorRepository" class="org.n52.iceland.service.operator.ServiceOperatorRepository" />
+	<bean id="requestOperatorRepository" class="org.n52.iceland.request.operator.RequestOperatorRepository" />
+	<bean id="converterRepository" class="org.n52.iceland.convert.ConverterRepository" />
+	<bean id="decoderRepository" class="org.n52.iceland.coding.decode.DecoderRepository" />
+	<!-- <bean id="encoderRepository" class="org.n52.iceland.coding.EncoderRepository" /> -->
+
+	<bean id="serviceConfiguration" class="org.n52.iceland.service.ServiceConfiguration" />
+	
+	<bean id="jsonSettingsDao" class="org.n52.iceland.config.json.JsonSettingsDao" />
+	<bean id="jsonSettingsEncoder" class="org.n52.iceland.config.json.JsonSettingsEncoder" />
+	<bean id="jsonSettingValueFactory" class="org.n52.iceland.config.json.JsonSettingValueFactory" />
+	<bean id="jsonConfiguration" class="org.n52.iceland.config.json.JsonConfiguration" />
+	<bean id="servletConfigLocationProvider" class="org.n52.iceland.service.ServletConfigLocationProvider" />
+	<bean id="booleanSettingDefinition" class="org.n52.iceland.config.settings.BooleanSettingDefinition" />
+	<bean id="encoderRepository" class="org.n52.iceland.coding.encode.EncoderRepository" />
+
+	<bean id="httpUtils" class="org.n52.iceland.util.http.HttpUtils" />	
+	<bean id="xmlOptionsHelper" class="org.n52.sos.util.XmlOptionsHelper" />	
+
+	<bean id="icelandServlet" class="org.n52.iceland.service.Service" />
+	<bean id="eventListenerRegistrator" class="org.n52.iceland.event.ServiceEventListenerRegistrator">
+		<description>Used to decouple EventListener and EventBus creation.</description>
+	</bean>
+	
+	   <!-- Decoder implementations from coding/sos-v20 -->
+    <!-- request decoder -->
+    <bean class="org.n52.sos.decode.FesDecoderv20"/>
+    <bean class="org.n52.sos.decode.GmlDecoderv321"/>
+    <bean class="org.n52.sos.decode.SosDecoderv20"/>
+    <bean class="org.n52.sos.decode.SosStringDecoderv20"/>
+    <bean class="org.n52.sos.decode.SwesDecoderv20"/>
+    <bean class="org.n52.sos.decode.SwesStringDecoderv20" />
+    <bean class="org.n52.sos.decode.SweCommonDecoderV20"/>
+    <bean class="org.n52.sos.decode.OmDecoderv20"/>
+    <bean class="org.n52.sos.decode.SamplingDecoderv20"/>
+    <bean class="org.n52.sos.decode.SwesExtensionDecoderv20"/>
+    <bean class="org.n52.sos.decode.XlinkDecoderv1999"/>
+    <!-- response decoder -->
+    <bean class="org.n52.sos.decode.sos.v2.GetObservationResponseDocumentDecoder"/>
+	
+<!-- 	<bean id="statisticsDefinitionGroup" class="org.n52.iceland.config.SettingDefinitionGroup"> -->
+<!-- 		<property name="title" value="Statistics" /> -->
+<!-- 		<property name="description" -->
+<!-- 			value="On this settings page you can enable and configure the statistics collection module. -->
+<!-- 			You can configure the folowwing settings: connection to Elasticsearch, Kibana preconfigured settings and GeoLocation transformation. -->
+<!-- 			&lt;br /&gt;&lt;br /&gt; -->
+<!-- 			You need to have access to an Elasticsearch setup in order to store the collected data about the incoming requests of the client, exceptions and messages and interesting metrics of the response messages. -->
+<!-- 			&lt;strong&gt;These settings will be change on the next webapplication startup.&lt;/strong&gt;  &lt;br /&gt; -->
+<!-- 			The Kibana server can connect to the Elasticsearch setup and visualize the innformation. -->
+<!-- 			&lt;br /&gt;"></property> -->
+<!-- 		<property name="order" value="11.0" /> -->
+<!-- 	</bean> -->
+	
+<!-- 	<bean id="miscellaneousSettingDefinitionGroup" class="org.n52.iceland.config.SettingDefinitionGroup"> -->
+<!--         <property name="title" value="Miscellaneous" /> -->
+<!--         <property name="order" value="3.0" /> -->
+<!--     </bean> -->
+	
+<!--     <bean class="org.n52.iceland.config.settings.BooleanSettingDefinition"> -->
+<!--         <property name="key" value="misc.httpResponseCodeUseInKvpAndPoxBinding" /> -->
+<!--         <property name="title" value="Use HTTP Status Codes in KVP and POX Binding?" /> -->
+<!--         <property name="description" value="Should the response returned by KVP and POX binding use the exception specific HTTP status code or always &lt;tt&gt;HTTP 200 - OK&lt;/tt&gt;." /> -->
+<!--         <property name="order" value="12.0" /> -->
+<!--         <property name="group" ref="miscellaneousSettingDefinitionGroup" /> -->
+<!--         <property name="defaultValue" value="false" /> -->
+<!--     </bean> -->
+
+<!--     <bean class="org.n52.iceland.config.settings.BooleanSettingDefinition"> -->
+<!--         <property name="key" value="statistics.counting-outputstream" /> -->
+<!--         <property name="title" value="Elasticsearch: The response document size is calculated" /> -->
+<!--         <property name="description" value="The size of the response document which is sent back to the client. This could result in a small performance degradation." /> -->
+<!--         <property name="order" value="26.0" /> -->
+<!--         <property name="group" ref="statisticsDefinitionGroup" /> -->
+<!--         <property name="defaultValue" value="false" /> -->
+<!--     </bean> -->
+<!--     <bean class="org.n52.iceland.config.settings.StringSettingDefinition"> -->
+<!--         <property name="key" value="misc.characterEncoding" /> -->
+<!--         <property name="title" value="Character Encoding" /> -->
+<!--         <property name="description" value="The character encoding used for responses." /> -->
+<!--         <property name="order" value="6.0" /> -->
+<!--         <property name="group" ref="miscellaneousSettingDefinitionGroup" /> -->
+<!--         <property name="defaultValue" value="UTF-8" /> -->
+<!--     </bean> -->
+<!--     <bean class="org.n52.iceland.config.settings.IntegerSettingDefinition"> -->
+<!--         <property name="key" value="profile.hydrology.maxReturnedValue" /> -->
+<!--         <property name="title" value="Maximum number of returned observation values" /> -->
+<!--         <property name="description" value="Set the maximum number of returned observation values for the Hydrology-Profile. Set to &lt;code&gt;0&lt;/code&gt; (zero) for unlimited number of observations." /> -->
+<!--         <property name="order" value="14.0" /> -->
+<!--         <property name="group" ref="miscellaneousSettingDefinitionGroup" /> -->
+<!--         <property name="defaultValue" value="0" /> -->
+<!--     </bean> -->
+<!--     <bean class="org.n52.iceland.config.settings.IntegerSettingDefinition"> -->
+<!--         <property name="key" value="profile.hydrology.maxReturnedTimeSeries" /> -->
+<!--         <property name="title" value="Maximum number of returned time series" /> -->
+<!--         <property name="description" value="Set the maximum number of returned time series for the Hydrology-Profile. Set to &lt;code&gt;0&lt;/code&gt; (zero) for unlimited number of observations." /> -->
+<!--         <property name="order" value="15.0" /> -->
+<!--         <property name="group" ref="miscellaneousSettingDefinitionGroup" /> -->
+<!--         <property name="defaultValue" value="0" /> -->
+<!--     </bean> -->
+<!--     <bean class="org.n52.iceland.config.settings.StringSettingDefinition"> -->
+<!--         <property name="key" value="misc.defaultFeaturePrefix" /> -->
+<!--         <property name="title" value="Default Feature Prefix" /> -->
+<!--         <property name="description" value="The default prefix for features (values from custom db)." /> -->
+<!--         <property name="order" value="10.0" /> -->
+<!--         <property name="group" ref="miscellaneousSettingDefinitionGroup" /> -->
+<!--         <property name="defaultValue" value="http://www.example.org/feature/" /> -->
+<!--     </bean> -->
+<!--     <bean class="org.n52.iceland.config.settings.StringSettingDefinition"> -->
+<!--         <property name="key" value="misc.defaultObservablePropertyPrefix" /> -->
+<!--         <property name="title" value="Default ObservableProperty Prefix" /> -->
+<!--         <property name="description" value="The default prefix for observableProperty (values from custom db)." /> -->
+<!--         <property name="order" value="9.0" /> -->
+<!--         <property name="group" ref="miscellaneousSettingDefinitionGroup" /> -->
+<!--         <property name="defaultValue" value="http://www.example.org/observableProperty/" /> -->
+<!--     </bean> -->
+<!--     <bean class="org.n52.iceland.config.settings.BooleanSettingDefinition"> -->
+<!--         <property name="key" value="profile.hydrology.overallExtrema" /> -->
+<!--         <property name="title" value="Should the SOS return overall extrema?" /> -->
+<!--         <property name="description" value="Should the SOS return overall extrema for first/latest observation queries or for each time series" /> -->
+<!--         <property name="order" value="16.0" /> -->
+<!--         <property name="group" ref="miscellaneousSettingDefinitionGroup" /> -->
+<!--         <property name="defaultValue" value="true" /> -->
+<!--     </bean> -->
+<!--     <bean class="org.n52.iceland.config.settings.StringSettingDefinition"> -->
+<!--         <property name="key" value="misc.defaultProcedurePrefix" /> -->
+<!--         <property name="title" value="Default Procedure Prefix" /> -->
+<!--         <property name="description" value="The default prefix for procedures (generated if not defined in Register-/InsertSensor requests or values from custom db)." /> -->
+<!--         <property name="order" value="8.0" /> -->
+<!--         <property name="group" ref="miscellaneousSettingDefinitionGroup" /> -->
+<!--         <property name="defaultValue" value="http://www.example.org/procedure/" /> -->
+<!--     </bean> -->
+<!--     <bean class="org.n52.iceland.config.settings.StringSettingDefinition"> -->
+<!--         <property name="key" value="misc.tupleSeparator" /> -->
+<!--         <property name="title" value="Tuple separator" /> -->
+<!--         <property name="description" value="Tuple separator in result element (a character)" /> -->
+<!--         <property name="order" value="1.0" /> -->
+<!--         <property name="group" ref="miscellaneousSettingDefinitionGroup" /> -->
+<!--         <property name="defaultValue" value="@@" /> -->
+<!--     </bean> -->
+<!--     <bean class="org.n52.iceland.config.settings.StringSettingDefinition"> -->
+<!--         <property name="key" value="misc.defaultOfferingPrefix" /> -->
+<!--         <property name="title" value="Default Offering Prefix" /> -->
+<!--         <property name="description" value="The default prefix for offerings (generated if not defined in Register-/InsertSensor requests or values from custom db)." /> -->
+<!--         <property name="order" value="7.0" /> -->
+<!--         <property name="group" ref="miscellaneousSettingDefinitionGroup" /> -->
+<!--         <property name="defaultValue" value="http://www.example.org/offering/" /> -->
+<!--     </bean> -->
+<!--     <bean class="org.n52.iceland.config.settings.StringSettingDefinition"> -->
+<!--         <property name="key" value="misc.srsNamePrefixSosV2" /> -->
+<!--         <property name="title" value="SOSv2 SRS Prefix" /> -->
+<!--         <property name="description" value="Prefix for the SRS name in SOS v2.0.0." /> -->
+<!--         <property name="order" value="5.0" /> -->
+<!--         <property name="group" ref="miscellaneousSettingDefinitionGroup" /> -->
+<!--         <property name="defaultValue" value="http://www.opengis.net/def/crs/EPSG/0/" /> -->
+<!--     </bean> -->
+<!--     <bean class="org.n52.iceland.config.settings.StringSettingDefinition"> -->
+<!--         <property name="key" value="misc.srsNamePrefixSosV1" /> -->
+<!--         <property name="title" value="SOSv1 SRS Prefix" /> -->
+<!--         <property name="description" value="Prefix for the SRS name in SOS v1.0.0." /> -->
+<!--         <property name="order" value="4.0" /> -->
+<!--         <property name="group" ref="miscellaneousSettingDefinitionGroup" /> -->
+<!--         <property name="defaultValue" value="urn:ogc:def:crs:EPSG::" /> -->
+<!--     </bean> -->
+<!--     <bean class="org.n52.iceland.config.settings.StringSettingDefinition"> -->
+<!--         <property name="key" value="misc.tokenSeparator" /> -->
+<!--         <property name="title" value="Token separator" /> -->
+<!--         <property name="description" value="Token separator in result element (a character)" /> -->
+<!--         <property name="order" value="0.0" /> -->
+<!--         <property name="group" ref="miscellaneousSettingDefinitionGroup" /> -->
+<!--         <property name="defaultValue" value="," /> -->
+<!--     </bean> -->
+<!--     <bean class="org.n52.iceland.config.settings.BooleanSettingDefinition"> -->
+<!--         <property name="key" value="misc.includeStackTraceInExceptionReport" /> -->
+<!--         <property name="title" value="Detailed Error Messages" /> -->
+<!--         <property name="description" value="Should OWS ExceptionReports include a complete stack trace for the causing exception?" /> -->
+<!--         <property name="order" value="15.0" /> -->
+<!--         <property name="group" ref="miscellaneousSettingDefinitionGroup" /> -->
+<!--         <property name="defaultValue" value="false" /> -->
+<!--     </bean> -->
+<!--     <bean class="org.n52.iceland.config.settings.BooleanSettingDefinition"> -->
+<!--         <property name="key" value="misc.httpResponseCodeUseInKvpAndPoxBinding" /> -->
+<!--         <property name="title" value="Use HTTP Status Codes in KVP and POX Binding?" /> -->
+<!--         <property name="description" value="Should the response returned by KVP and POX binding use the exception specific HTTP status code or always &lt;tt&gt;HTTP 200 - OK&lt;/tt&gt;." /> -->
+<!--         <property name="order" value="12.0" /> -->
+<!--         <property name="group" ref="miscellaneousSettingDefinitionGroup" /> -->
+<!--         <property name="defaultValue" value="false" /> -->
+<!--     </bean> -->
+<!--     <bean class="org.n52.iceland.config.settings.StringSettingDefinition"> -->
+<!--         <property name="key" value="misc.decimalSeparator" /> -->
+<!--         <property name="title" value="Decimal separator" /> -->
+<!--         <property name="description" value="Decimal separator in result element (a character)" /> -->
+<!--         <property name="order" value="2.0" /> -->
+<!--         <property name="group" ref="miscellaneousSettingDefinitionGroup" /> -->
+<!--         <property name="defaultValue" value="." /> -->
+<!--     </bean> -->
+<!--     <bean class="org.n52.iceland.config.settings.BooleanSettingDefinition"> -->
+<!--         <property name="key" value="operation.gda.forceValueCount" /> -->
+<!--         <property name="title" value="Should the SOS include value count in GetDataAvailability response?" /> -->
+<!--         <property name="description" value="Should the SOS include the value count for each timeseries in the GetDataAvailability response?" /> -->
+<!--         <property name="order" value="17.0" /> -->
+<!--         <property name="group" ref="miscellaneousSettingDefinitionGroup" /> -->
+<!--         <property name="defaultValue" value="false" /> -->
+<!--     </bean> -->
+<!--     <bean class="org.n52.iceland.config.settings.BooleanSettingDefinition"> -->
+<!--         <property name="key" value="misc.includeOriginalRequest" /> -->
+<!--         <property name="title" value="Should the SOS include the original request?" /> -->
+<!--         <property name="description" value="Should the SOS include the original request to the internal request?" /> -->
+<!--         <property name="order" value="18.0" /> -->
+<!--         <property name="group" ref="miscellaneousSettingDefinitionGroup" /> -->
+<!--         <property name="defaultValue" value="false" /> -->
+<!--     </bean> -->
+    
+<!--         <bean id="serviceSettingDefintionGroup" class="org.n52.iceland.config.SettingDefinitionGroup"> -->
+<!--         <property name="title" value="Service" /> -->
+<!--         <property name="order" value="2.0" /> -->
+<!--     </bean> -->
+<!--     <bean class="org.n52.iceland.config.settings.UriSettingDefinition"> -->
+<!--         <property name="key" value="service.serviceURL" /> -->
+<!--         <property name="title" value="SOS URL" /> -->
+<!--         <property name="description" value="The endpoint URL of this sos which will be shown in the GetCapabilities response (e.g. &lt;code&gt;http://localhost:8080/52nSOS/sos&lt;/code&gt; or &lt;code&gt;http://localhost:8080/52nSOS/service&lt;/code&gt;). The path to a specific binding (like &lt;code&gt;/soap&lt;/code&gt;) will appended to this URL. For detailed information, please read the &lt;a href=&quot;https://wiki.52north.org/bin/view/SensorWeb/SensorObservationServiceIVDocumentation&quot;&gt;documentation&lt;/a&gt;" /> -->
+<!--         <property name="order" value="0.0" /> -->
+<!--         <property name="group" ref="serviceSettingDefintionGroup" /> -->
+<!--     </bean> -->
+<!--     <bean class="org.n52.iceland.config.settings.BooleanSettingDefinition"> -->
+<!--         <property name="key" value="service.strictSpatialFilteringProfile" /> -->
+<!--         <property name="title" value="Should this SOS support strict Spatial Filtering Profile?" /> -->
+<!--         <property name="description" value="Whether the SOS should support strict SOS 2.0 Spatial Filtering Profile. That means each observation should contain a om:parameter with sampling geometry. Else the SOS allows observations without om:parameter with sampling geometry!" /> -->
+<!--         <property name="order" value="15.0" /> -->
+<!--         <property name="group" ref="serviceSettingDefintionGroup" /> -->
+<!--         <property name="defaultValue" value="false" /> -->
+<!--     </bean> -->
+<!--     <bean class="org.n52.iceland.config.settings.BooleanSettingDefinition"> -->
+<!--         <property name="key" value="service.addOutputsToSensorML" /> -->
+<!--         <property name="title" value="Add outputs to DescribeSensor SensorML responses" /> -->
+<!--         <property name="description" value="Whether to query example observations and dynamically add outputs to DescribeSensor SensorML responses." /> -->
+<!--         <property name="order" value="14.0" /> -->
+<!--         <property name="group" ref="serviceSettingDefintionGroup" /> -->
+<!--         <property name="defaultValue" value="true" /> -->
+<!--     </bean> -->
+<!--     <bean class="org.n52.iceland.config.settings.StringSettingDefinition"> -->
+<!--         <property name="key" value="service.sensorDirectory" /> -->
+<!--         <property name="title" value="Sensor Directory" /> -->
+<!--         <property name="description" value="The path to a directory with the sensor descriptions in SensorML format. It can be either an absolute path (like &lt;code&gt;/home/user/sosconfig/sensors&lt;/code&gt;) or a path relative to the web application classes directory (e.g. &lt;code&gt;WEB-INF/classes/sensors&lt;/code&gt;)." /> -->
+<!--         <property name="order" value="7.0" /> -->
+<!--         <property name="group" ref="serviceSettingDefintionGroup" /> -->
+<!--         <property name="defaultValue" value="/sensors" /> -->
+<!--     </bean> -->
+<!--     <bean class="org.n52.iceland.config.settings.BooleanSettingDefinition"> -->
+<!--         <property name="key" value="service.useDefaultPrefixes" /> -->
+<!--         <property name="title" value="Use default prefixes for offering, procedure, features" /> -->
+<!--         <property name="description" value="Use default prefixes for offering, procedure, features." /> -->
+<!--         <property name="order" value="11.0" /> -->
+<!--         <property name="group" ref="serviceSettingDefintionGroup" /> -->
+<!--         <property name="defaultValue" value="false" /> -->
+<!--     </bean> -->
+<!--     <bean class="org.n52.iceland.config.settings.BooleanSettingDefinition"> -->
+<!--         <property name="key" value="service.jdbc.deregister" /> -->
+<!--         <property name="title" value="Deregister JDBC driver" /> -->
+<!--         <property name="description" value="Should the service deregister all used JDBC driver (SQLite, PostgreSQL or H2) during shutdown process." /> -->
+<!--         <property name="order" value="13.0" /> -->
+<!--         <property name="group" ref="serviceSettingDefintionGroup" /> -->
+<!--         <property name="defaultValue" value="true" /> -->
+<!--     </bean> -->
+<!--     <bean class="org.n52.iceland.config.settings.IntegerSettingDefinition"> -->
+<!--         <property name="key" value="service.cachePersistenceDelay" /> -->
+<!--         <property name="title" value="Content cache persistence delay" /> -->
+<!--         <property name="description" value="The time in seconds, for which writing of an updated cache is delayed. Incremental cache updates that are executed during transactional operations are not immediately persistet, but are delayed to reduce write operations and to improve performance. The delay is the maximum time the persisted and in memory cache can diverge." /> -->
+<!--         <property name="order" value="6.1" /> -->
+<!--         <property name="group" ref="serviceSettingDefintionGroup" /> -->
+<!--         <property name="defaultValue" value="30" /> -->
+<!--         <property name="minimum" value="1" /> -->
+<!--     </bean> -->
+<!--     <bean class="org.n52.iceland.config.settings.BooleanSettingDefinition"> -->
+<!--         <property name="key" value="service.response.validate" /> -->
+<!--         <property name="title" value="Should this SOS validate the XML response in non debug mode?" /> -->
+<!--         <property name="description" value="Whether the SOS should validate the XML response when the debug mode is disables!" /> -->
+<!--         <property name="order" value="16.0" /> -->
+<!--         <property name="group" ref="serviceSettingDefintionGroup" /> -->
+<!--         <property name="defaultValue" value="false" /> -->
+<!--     </bean> -->
+<!--     <bean class="org.n52.iceland.config.settings.BooleanSettingDefinition"> -->
+<!--         <property name="key" value="service.blockGetObservationRequestsWithoutRestriction" /> -->
+<!--         <property name="title" value="Block restrictionless requests" /> -->
+<!--         <property name="description" value="Should GetObservation requests without any restriction be blocked" /> -->
+<!--         <property name="order" value="12.0" /> -->
+<!--         <property name="group" ref="serviceSettingDefintionGroup" /> -->
+<!--         <property name="defaultValue" value="false" /> -->
+<!--     </bean> -->
+<!--     <bean class="org.n52.iceland.config.settings.BooleanSettingDefinition"> -->
+<!--         <property name="key" value="service.encodeFullChildrenInDescribeSensor" /> -->
+<!--         <property name="title" value="Encode full for child procedure SensorML in parent DescribeSensor responses" /> -->
+<!--         <property name="description" value="Whether to encode full SensorML for each child procedures in a DescribeSensor response for a parent procedure." /> -->
+<!--         <property name="order" value="12.0" /> -->
+<!--         <property name="group" ref="serviceSettingDefintionGroup" /> -->
+<!--         <property name="defaultValue" value="true" /> -->
+<!--     </bean> -->
+<!--     <bean class="org.n52.iceland.config.settings.IntegerSettingDefinition"> -->
+<!--         <property name="key" value="service.cacheThreadCount" /> -->
+<!--         <property name="title" value="Cache Feeder Threads" /> -->
+<!--         <property name="description" value="The number of threads used to fill the capabilities cache." /> -->
+<!--         <property name="order" value="8.0" /> -->
+<!--         <property name="group" ref="serviceSettingDefintionGroup" /> -->
+<!--         <property name="defaultValue" value="5" /> -->
+<!--     </bean> -->
+<!--     <bean class="org.n52.iceland.config.settings.IntegerSettingDefinition"> -->
+<!--         <property name="key" value="service.capabilitiesCacheUpdateInterval" /> -->
+<!--         <property name="title" value="Content cache update interval" /> -->
+<!--         <property name="description" value="The update interval of the content cache in minutes. Set this to lower value if your database is externally modified frequently. Set to 0 to disable scheduled cache updates." /> -->
+<!--         <property name="order" value="6.0" /> -->
+<!--         <property name="group" ref="serviceSettingDefintionGroup" /> -->
+<!--         <property name="defaultValue" value="120" /> -->
+<!--         <property name="minimum" value="0" /> -->
+<!--     </bean> -->
+<!--     <bean class="org.n52.iceland.config.settings.BooleanSettingDefinition"> -->
+<!--         <property name="key" value="service.exposeChildObservableProperties" /> -->
+<!--         <property name="title" value="Should this SOS expose child observable properties?" /> -->
+<!--         <property name="description" value="Whether the SOS should expose the children of composite phenomenons (e.g. in complex observations) instead of their parents." /> -->
+<!--         <property name="order" value="17.0" /> -->
+<!--         <property name="group" ref="serviceSettingDefintionGroup" /> -->
+<!--         <property name="defaultValue" value="false" /> -->
+<!--     </bean> -->
+
+<!--     <bean id="i18nSettingDefinitionGroup" class="org.n52.iceland.config.SettingDefinitionGroup"> -->
+<!--         <property name="title" value="I18N" /> -->
+<!--         <property name="order" value="10.0" /> -->
+<!--     </bean> -->
+<!--     <bean class="org.n52.iceland.config.settings.StringSettingDefinition"> -->
+<!--         <property name="key" value="i18n.defaultLanguage" /> -->
+<!--         <property name="title" value="I18N default language" /> -->
+<!--         <property name="description" value="Set the I18N default language for this service" /> -->
+<!--         <property name="order" value="1.0" /> -->
+<!--         <property name="group" ref="i18nSettingDefinitionGroup" /> -->
+<!--         <property name="defaultValue" value="eng" /> -->
+<!--     </bean> -->
+<!--     <bean class="org.n52.iceland.config.settings.BooleanSettingDefinition"> -->
+<!--         <property name="key" value="i18n.showAllLanguageValues" /> -->
+<!--         <property name="title" value="I18N show all language values" /> -->
+<!--         <property name="description" value="Show all language specific values if no language is queried or the queried language is not supported!" /> -->
+<!--         <property name="order" value="2.0" /> -->
+<!--         <property name="group" ref="i18nSettingDefinitionGroup" /> -->
+<!--         <property name="defaultValue" value="false" /> -->
+<!--     </bean> -->
+
+</beans>

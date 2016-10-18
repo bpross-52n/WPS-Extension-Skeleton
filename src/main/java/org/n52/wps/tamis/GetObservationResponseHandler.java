@@ -9,6 +9,7 @@ import java.util.List;
 
 import org.apache.xmlbeans.XmlException;
 import org.joda.time.DateTime;
+import org.n52.iceland.coding.CodingRepository;
 import org.n52.iceland.exception.ows.OwsExceptionReport;
 import org.n52.iceland.ogc.gml.time.Time;
 import org.n52.iceland.ogc.gml.time.TimePeriod;
@@ -19,7 +20,6 @@ import org.n52.sos.ogc.swe.SweAbstractDataComponent;
 import org.n52.sos.ogc.swe.SweDataArray;
 import org.n52.sos.ogc.swe.SweField;
 import org.n52.sos.ogc.swe.simpleType.SweQuantity;
-import org.n52.sos.util.SosConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -76,7 +76,9 @@ public class GetObservationResponseHandler {
 
             OMObservationType observation = dataArray[0].getOMObservation();//TODO check
 
-            SosConfiguration.init();
+//            SosConfiguration.init();
+            CodingRepository
+            .getInstance();
 
             Object parsedObject = new OmDecoderv20().decode(observation);
 
