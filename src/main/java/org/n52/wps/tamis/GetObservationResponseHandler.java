@@ -2,6 +2,7 @@ package org.n52.wps.tamis;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.ArrayList;
@@ -9,7 +10,6 @@ import java.util.List;
 
 import org.apache.xmlbeans.XmlException;
 import org.joda.time.DateTime;
-import org.n52.iceland.coding.CodingRepository;
 import org.n52.iceland.exception.ows.OwsExceptionReport;
 import org.n52.iceland.ogc.gml.time.Time;
 import org.n52.iceland.ogc.gml.time.TimePeriod;
@@ -31,17 +31,7 @@ public class GetObservationResponseHandler {
 
     private static Logger LOGGER = LoggerFactory.getLogger(GetObservationResponseHandler.class);
 
-    private InputStream stream;
-
-    private String type;
-
-    private String locationId;
-
-    private String parameterId;
-
-    private String timeStepUnit;
-
-    private String timeStepMultiplier;
+    private InputStream inputStream;
 
     private String startDate;
 
@@ -53,11 +43,13 @@ public class GetObservationResponseHandler {
 
     private String missVal;
 
-    private String stationName = "Bevertalsperre";
-
     private String units;
 
+    private FEWObject fewObject;
+
     private List<Event> eventList;
+
+	private OutputStream outputStream;
 
     public GetObservationResponseHandler() {
         eventList = new ArrayList<>();
@@ -68,17 +60,13 @@ public class GetObservationResponseHandler {
         checkPrerequisites();
 
         try {
-            GetObservationResponseDocument response = GetObservationResponseDocument.Factory.parse(stream);
+            GetObservationResponseDocument response = GetObservationResponseDocument.Factory.parse(inputStream);
 
             ObservationData[] dataArray = response.getGetObservationResponse().getObservationDataArray();
 
             LOGGER.info("Got {} observations.", dataArray.length);
 
             OMObservationType observation = dataArray[0].getOMObservation();//TODO check
-
-//            SosConfiguration.init();
-            CodingRepository
-            .getInstance();
 
             Object parsedObject = new OmDecoderv20().decode(observation);
 
@@ -150,87 +138,48 @@ public class GetObservationResponseHandler {
         } catch (XmlException | IOException | OwsExceptionReport e) {
             LOGGER.error(e.getMessage());
         }
+        
+        Writer stream = new OutputStreamWriter(outputStream);
 
-        Writer stream = new OutputStreamWriter(System.out);
+//        new TimeSeriesToTalsim().setEvents(eventList).setOutputStream(stream).setType(type).setLocationId(locationId).setParameterId(parameterId).setTimeStepUnit(timeStepUnit)
+//                .setTimeStepMultiplier(timeStepMultiplier).setStartDate(startDate).setStartTime(startTime).setEndDate(endDate).setEndTime(endTime).setMissVal(missVal).setStationName(stationName)
+//                .setUnits(units).createTimeSeries();
+        new TimeSeriesToTalsim().setEvents(eventList).setOutputStream(stream).setFEWObject(fewObject)
+        .setStartDate(startDate).setStartTime(startTime).setEndDate(endDate).setEndTime(endTime).setUnits(units)
+        .createTimeSeries();
 
-        new TimeSeriesToTalsim().setEvents(eventList).setStream(stream).setType(type).setLocationId(locationId).setParameterId(parameterId).setTimeStepUnit(timeStepUnit)
-                .setTimeStepMultiplier(timeStepMultiplier).setStartDate(startDate).setStartTime(startTime).setEndDate(endDate).setEndTime(endTime).setMissVal(missVal).setStationName(stationName)
-                .setUnits(units).createTimeSeries();
-
+        try {
+			stream.close();
+		} catch (IOException e) {
+			/* ignore */
+		}
     }
 
     private void checkPrerequisites() {
-        if (stream == null) {
+        if (inputStream == null) {
             throw new IllegalArgumentException("InputStream not set.");
+        }
+        if (outputStream == null) {
+        	throw new IllegalArgumentException("OutputStream not set.");
         }
     }
 
-    public GetObservationResponseHandler setStream(InputStream stream) {
-        this.stream = stream;
+    public GetObservationResponseHandler setInputStream(InputStream stream) {
+        this.inputStream = stream;
         return this;
     }
-
-    public String getType() {
-        return type;
+    
+    public GetObservationResponseHandler setOutputStream(OutputStream stream) {
+    	this.outputStream = stream;
+    	return this;
     }
 
-    public GetObservationResponseHandler setType(String type) {
-        this.type = type;
+    public FEWObject getFEWObject() {
+        return fewObject;
+    }
+
+    public GetObservationResponseHandler setFEWObject(FEWObject fewObject) {
+        this.fewObject = fewObject;
         return this;
     }
-
-    public String getLocationId() {
-        return locationId;
-    }
-
-    public GetObservationResponseHandler setLocationId(String locationId) {
-        this.locationId = locationId;
-        return this;
-    }
-
-    public String getParameterId() {
-        return parameterId;
-    }
-
-    public GetObservationResponseHandler setParameterId(String parameterId) {
-        this.parameterId = parameterId;
-        return this;
-    }
-
-    public String getTimeStepUnit() {
-        return timeStepUnit;
-    }
-
-    public GetObservationResponseHandler setTimeStepUnit(String timeStepUnit) {
-        this.timeStepUnit = timeStepUnit;
-        return this;
-    }
-
-    public String getTimeStepMultiplier() {
-        return timeStepMultiplier;
-    }
-
-    public GetObservationResponseHandler setTimeStepMultiplier(String timeStepMultiplier) {
-        this.timeStepMultiplier = timeStepMultiplier;
-        return this;
-    }
-
-    public String getMissVal() {
-        return missVal;
-    }
-
-    public GetObservationResponseHandler setMissVal(String missVal) {
-        this.missVal = missVal;
-        return this;
-    }
-
-    public String getStationName() {
-        return stationName;
-    }
-
-    public GetObservationResponseHandler setStationName(String stationName) {
-        this.stationName = stationName;
-        return this;
-    }
-
 }

@@ -94,6 +94,8 @@ public class TimeSeriesToTalsim {
     
     private List<Event> events;
 
+    private FEWObject fewObject;
+    
     public TimeSeriesToTalsim() {
         
     }
@@ -394,7 +396,7 @@ public class TimeSeriesToTalsim {
         return stream;
     }
 
-    public TimeSeriesToTalsim setStream(Writer stream) {
+    public TimeSeriesToTalsim setOutputStream(Writer stream) {
         this.stream = stream;
         return this;
     }
@@ -408,4 +410,21 @@ public class TimeSeriesToTalsim {
         return this;
     }
 
+    public FEWObject getFEWObject() {
+        return fewObject;
+    }
+
+    public TimeSeriesToTalsim setFEWObject(FEWObject fewObject) {
+        this.fewObject = fewObject;
+        setLocationId(fewObject.getLocationId());
+        setParameterId(fewObject.getParameterId());
+        setType(fewObject.getType());
+        setStationName(fewObject.getStationName());
+        setTimeStepUnit(fewObject.getTimeStepUnit());
+        setTimeStepMultiplier(fewObject.getTimeStepMultiplier());
+        setUnits(fewObject.getUnits())
+        .setMissVal(fewObject.getMissVal());
+        return this;
+    }
+    
 }

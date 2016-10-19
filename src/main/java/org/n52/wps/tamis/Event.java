@@ -1,8 +1,6 @@
 package org.n52.wps.tamis;
 
 import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 
 public class Event {
 

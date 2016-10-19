@@ -3,14 +3,57 @@ package org.n52.wps.tamis;
 import java.util.List;
 
 public class FEWObject {
+	
+	public static enum Types {instantaneous};
+	
+	public static enum LocationID { TBEV, EBEV };
+	
+	public static enum ParameterId {
+		QA1, Volumen, Zufluss, ZU1, VOL, WSP, QH1;
 
+		public String getParameterID() {
+			if (this == ZU1) {
+				return "1ZU";
+			} else {
+				return this.toString();
+			}
+		}
+
+	};
+	
+	public static enum Unit {
+		m3persecond, millionm3, thousandm3, mNN;
+		
+		public String getUnitForTalSIM() {
+			if (this == m3persecond) {
+				return "m3/s";
+			} else if (this == millionm3) {
+				return "Mio.m3";
+			} else if (this == thousandm3) {
+				return "Tsd.m3";
+			} else  {
+				return this.toString();
+			}
+		}
+		
+		public String getUnitForTimeSeries() {
+			//TODO map to O&M unit Strings
+			if (this == m3persecond) {
+				return "1ZU";
+			} else {
+				return this.toString();
+			}
+		}
+		
+	};
+	
     private String type;
     
     private String locationId;
 
     private String parameterId;
 
-    private String timeStepUnit;
+    private String timeStepUnit = "second";
 
     private String timeStepMultiplier;
 
@@ -22,7 +65,7 @@ public class FEWObject {
 
     private String endTime;
 
-    private String missVal;
+    private String missVal = "-999";
 
     private String stationName = "Bevertalsperre";
 
