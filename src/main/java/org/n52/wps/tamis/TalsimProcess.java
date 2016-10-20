@@ -129,7 +129,7 @@ public class TalsimProcess extends AbstractAnnotatedAlgorithm {
 		File volumeInputFile = new File(talsimFEWStoTALSIMDataPath + File.separator + volumeFilename);
 		File inflowInputFile = new File(talsimFEWStoTALSIMDataPath + File.separator + inflowFilename);
 
-		//create discharge input for TalSIM
+		//create discharge input for Talsim
 		try {
 			
 			FileOutputStream dischargeFileOutputStream = new FileOutputStream(dischargeInputFile);
@@ -148,7 +148,7 @@ public class TalsimProcess extends AbstractAnnotatedAlgorithm {
 			throw new RuntimeException("Could not create Talsim input file for discharge.");
 		}
 		
-		//create volume input for TalSIM
+		//create volume input for Talsim
 		try {
 			
 			FileOutputStream volumeFileOutputStream = new FileOutputStream(volumeInputFile);
@@ -167,7 +167,7 @@ public class TalsimProcess extends AbstractAnnotatedAlgorithm {
 			throw new RuntimeException("Could not create Talsim input file for volume.");
 		}
 		
-		//create inflow input for TalSIM
+		//create inflow input for Talsim
 		try {
 			
 			FileOutputStream inflowFileOutputStream = new FileOutputStream(inflowInputFile);
