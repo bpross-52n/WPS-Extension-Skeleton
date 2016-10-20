@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
         version = "0.01")
 public class TalsimProcess extends AbstractAnnotatedAlgorithm {
 
-    private static Logger LOGGER = LoggerFactory.getLogger(TalsimProcessTest.class);
+    private static Logger LOGGER = LoggerFactory.getLogger(TalsimProcess.class);
 
     private final String lineSeparator = System.getProperty("line.separator");
     

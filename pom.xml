@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
@@ -7,7 +8,7 @@
 		<version>5.6.6</version>
 	</parent>
 
-	<groupId>org.n52.wps.tamisn</groupId>
+	<groupId>org.n52.wps.tamis</groupId>
 	<artifactId>talsim-process</artifactId>
 	<version>0.0.2-SNAPSHOT</version>
 
@@ -26,15 +27,21 @@
 		<developerConnection>scm:git:ssh://git@github.com/52North/WPS-Extension-Skeleton.git</developerConnection>
 	</scm>
 	<dependencies>
-<!-- 		<dependency>	 -->
-<!-- 		    <groupId>org.n52.wps</groupId> -->
-<!-- 	        <artifactId>52n-wps-io-sensorweb</artifactId> -->
-<!-- 	        <version>1.0.0-SNAPSHOT</version> -->
-<!-- 		</dependency> -->
+		<!-- <dependency> -->
+		<!-- <groupId>org.n52.wps</groupId> -->
+		<!-- <artifactId>52n-wps-io-sensorweb</artifactId> -->
+		<!-- <version>1.0.0-SNAPSHOT</version> -->
+		<!-- </dependency> -->
 		<dependency>
 			<groupId>org.n52.wps</groupId>
 			<artifactId>52n-wps-grass</artifactId>
 			<version>4.0.0-SNAPSHOT</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>52n-xml-wps-v100</artifactId>
+					<groupId>org.n52.wps</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.n52.wps</groupId>
@@ -51,6 +58,10 @@
 				<exclusion>
 					<artifactId>jackson-databind</artifactId>
 					<groupId>com.fasterxml.jackson.core</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>52n-xml-wps-v100</artifactId>
+					<groupId>org.n52.wps</groupId>
 				</exclusion>
 			</exclusions>
 		</dependency>
@@ -94,8 +105,14 @@
 			<groupId>org.n52.wps</groupId>
 			<artifactId>52n-wps-algorithm</artifactId>
 			<version>4.0.0-SNAPSHOT</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>52n-xml-wps-v100</artifactId>
+					<groupId>org.n52.wps</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
-        <dependency>
+		<dependency>
 			<groupId>org.n52.iceland</groupId>
 			<artifactId>statistics</artifactId>
 			<version>1.2.0-SNAPSHOT</version>
@@ -103,9 +120,9 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-            <groupId>org.n52.sensorweb.sos</groupId>
-            <artifactId>coding-wml-v20</artifactId>
-            <version>5.0.0-SNAPSHOT</version>
+			<groupId>org.n52.sensorweb.sos</groupId>
+			<artifactId>coding-wml-v20</artifactId>
+			<version>5.0.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>javax.servlet</groupId>
