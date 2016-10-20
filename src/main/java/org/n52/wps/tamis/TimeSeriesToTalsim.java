@@ -2,7 +2,6 @@ package org.n52.wps.tamis;
 
 import java.io.Writer;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.xml.stream.XMLOutputFactory;
@@ -66,18 +65,8 @@ public class TimeSeriesToTalsim {
     
     private String valueAttribute = "value";
 
-    private String startDate;
-
-    private String startTime;
-
-    private String endDate;
-
-    private String endTime;
-
     private Writer stream;
     
-    private List<Event> events;
-
     private FEWObject fewObject;
     
     public TimeSeriesToTalsim() {}
@@ -152,18 +141,18 @@ public class TimeSeriesToTalsim {
         //check parameters
         Map<String, String> parameterMap = new HashMap<>();
 
-        parameterMap.put("type", getType());
-        parameterMap.put("locationId", getLocationId());
-        parameterMap.put("parameterId", getParameterId());
-        parameterMap.put("timeStepUnit", getTimeStepUnit());
-        parameterMap.put("timeStepMultiplier", getTimeStepMultiplier());
-        parameterMap.put("startDate", getStartDate());
-        parameterMap.put("startTime", getStartTime());
-        parameterMap.put("endDate", getEndDate());
-        parameterMap.put("endTime", getEndTime());
-        parameterMap.put("missVal", getMissVal());
-        parameterMap.put("stationName", getStationName());
-        parameterMap.put("units", getUnits());
+        parameterMap.put("type", fewObject.getType());
+        parameterMap.put("locationId", fewObject.getLocationId());
+        parameterMap.put("parameterId", fewObject.getParameterId());
+        parameterMap.put("timeStepUnit", fewObject.getTimeStepUnit());
+        parameterMap.put("timeStepMultiplier", fewObject.getTimeStepMultiplier());
+        parameterMap.put("startDate", fewObject.getStartDate());
+        parameterMap.put("startTime", fewObject.getStartTime());
+        parameterMap.put("endDate", fewObject.getEndDate());
+        parameterMap.put("endTime", fewObject.getEndTime());
+        parameterMap.put("missVal", fewObject.getMissVal());
+        parameterMap.put("stationName", fewObject.getStationName());
+        parameterMap.put("units", fewObject.getUnits());
 
         for (String parameterName : parameterMap.keySet()) {
             
@@ -175,13 +164,13 @@ public class TimeSeriesToTalsim {
         }
         
         //TODO check timeseries, best including check form matching start/end date/time
-        if(events == null || events.isEmpty()){
+        if(fewObject.getEventList() == null || fewObject.getEventList().isEmpty()){
             throw new IllegalArgumentException("No events (date/time/value) for writing.");
         }
     }
 
     private void createEvents(XMLStreamWriter idxtw) throws XMLStreamException {        
-        for (Event event : events) {
+        for (Event event : fewObject.getEventList()) {
             idxtw.writeEmptyElement(eventElement);
             idxtw.writeAttribute(dateAttribute, event.getDate());
             idxtw.writeAttribute(timeAttribute, event.getTime());
@@ -217,145 +206,60 @@ public class TimeSeriesToTalsim {
         
         // type
         idxtw.writeStartElement(namespace, typeElement);
-        idxtw.writeCharacters(getType());
+        idxtw.writeCharacters(fewObject.getType());
         idxtw.writeEndElement();
 
         // locationId
         idxtw.writeStartElement(namespace, locationIdElement);
-        idxtw.writeCharacters(getLocationId());
+        idxtw.writeCharacters(fewObject.getLocationId());
         idxtw.writeEndElement();
 
         // parameterId
         idxtw.writeStartElement(namespace, parameterIdElement);
-        idxtw.writeCharacters(getParameterId());
+        idxtw.writeCharacters(fewObject.getParameterId());
         idxtw.writeEndElement();
 
         // timeStep
         idxtw.writeStartElement(namespace, timeStepElement);
-        idxtw.writeAttribute(timeStepUnitAttribute, getTimeStepUnit());
-        idxtw.writeAttribute(timeStepMultiplierAttribute, getTimeStepMultiplier());
+        idxtw.writeAttribute(timeStepUnitAttribute,fewObject.getTimeStepUnit());
+        idxtw.writeAttribute(timeStepMultiplierAttribute, fewObject.getTimeStepMultiplier());
         idxtw.writeEndElement();
 
         // startDate
         idxtw.writeStartElement(namespace, startDateElement);
-        idxtw.writeAttribute(timeAttribute, getStartTime());
-        idxtw.writeAttribute(dateAttribute, getStartDate());
+        idxtw.writeAttribute(timeAttribute, fewObject.getStartTime());
+        idxtw.writeAttribute(dateAttribute, fewObject.getStartDate());
         idxtw.writeEndElement();
 
         // endDate
         idxtw.writeStartElement(namespace, endDateElement);
-        idxtw.writeAttribute(timeAttribute, getEndTime());
-        idxtw.writeAttribute(dateAttribute, getEndDate());
+        idxtw.writeAttribute(timeAttribute, fewObject.getEndTime());
+        idxtw.writeAttribute(dateAttribute, fewObject.getEndDate());
         idxtw.writeEndElement();
 
         // missVal
         idxtw.writeStartElement(namespace, missValElement);
-        idxtw.writeCharacters(getMissVal());
+        idxtw.writeCharacters(fewObject.getMissVal());
         idxtw.writeEndElement();
 
         // stationName
         idxtw.writeStartElement(namespace, stationNameElement);
-        idxtw.writeCharacters(getStationName());
+        idxtw.writeCharacters(fewObject.getStationName());
         idxtw.writeEndElement();
 
         // units
         idxtw.writeStartElement(namespace, unitsElement);
-        idxtw.writeCharacters(getUnits());
+        idxtw.writeCharacters(fewObject.getUnits());
         idxtw.writeEndElement();
         
         idxtw.writeEndElement();//header
-    }
-
-    public String getType() {
-        return fewObject.getType();
-    }
-
-    public String getLocationId() {
-        return fewObject.getLocationId();
-    }
-
-    public String getParameterId() {
-        return fewObject.getParameterId();
-    }
-
-    public String getTimeStepUnit() {
-        return fewObject.getTimeStepUnit();
-    }
-
-    public String getTimeStepMultiplier() {
-        return fewObject.getTimeStepMultiplier();
-    }
-
-    public String getStartDate() {
-        return startDate;
-    }
-
-    public TimeSeriesToTalsim setStartDate(String startDate) {
-        this.startDate = startDate;
-        return this;
-    }
-
-    public String getEndDate() {
-        return endDate;
-    }
-
-    public TimeSeriesToTalsim setEndDate(String endDate) {
-        this.endDate = endDate;
-        return this;
-    }
-
-    public String getStartTime() {
-        return startTime;
-    }
-
-    public TimeSeriesToTalsim setStartTime(String startTime) {
-        this.startTime = startTime;
-        return this;
-    }
-
-    public String getEndTime() {
-        return endTime;
-    }
-
-    public TimeSeriesToTalsim setEndTime(String endTime) {
-        this.endTime = endTime;
-        return this;
-    }
-
-    public String getMissVal() {
-        return fewObject.getMissVal();
-    }
-
-    public String getStationName() {
-        return fewObject.getStationName();
-    }
-
-    public String getUnits() {
-        return fewObject.getUnits();
-    }
-
-    public Writer getStream() {
-        return stream;
     }
 
     public TimeSeriesToTalsim setOutputStream(Writer stream) {
         this.stream = stream;
         return this;
     }
-
-    public List<Event> getEvents() {
-        return events;
-    }
-
-    public TimeSeriesToTalsim setEvents(List<Event> events) {
-        this.events = events;
-        return this;
-    }
-
-    public FEWObject getFEWObject() {
-        return fewObject;
-    }
-
+    
     public TimeSeriesToTalsim setFEWObject(FEWObject fewObject) {
         this.fewObject = fewObject;
         return this;

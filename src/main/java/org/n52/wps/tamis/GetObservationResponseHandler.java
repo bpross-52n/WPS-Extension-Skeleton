@@ -140,12 +140,15 @@ public class GetObservationResponseHandler {
         }
         
         fewObject.setUnits(units);
+        fewObject.setEventList(eventList);
+        fewObject.setStartDate(startDate);
+        fewObject.setStartTime(startTime);
+        fewObject.setEndDate(endDate);
+        fewObject.setEndTime(endTime);
         
         Writer stream = new OutputStreamWriter(outputStream);
         
-        new TimeSeriesToTalsim().setEvents(eventList).setOutputStream(stream).setFEWObject(fewObject)
-        .setStartDate(startDate).setStartTime(startTime).setEndDate(endDate).setEndTime(endTime)
-        .createTimeSeries();
+        new TimeSeriesToTalsim().setOutputStream(stream).setFEWObject(fewObject).createTimeSeries();
 
         try {
 			stream.close();
