@@ -74,12 +74,12 @@ public class TaMISProcessConfigModule extends ClassKnowingModule {
 		return null;
 	}
 
-	public String getTalSIMTaskManagerPath() {
+	public String getTalsimTaskManagerPath() {
 		return talsimTaskManagerPath;
 	}
 
 	@ConfigurationKey(key = talsimTaskManagerPathKey)
-	public void setTalSIMTaskManagerPath(String talsimTaskManagerPath) {
+	public void setTalsimTaskManagerPath(String talsimTaskManagerPath) {
 		this.talsimTaskManagerPath = talsimTaskManagerPath;
 	}
 

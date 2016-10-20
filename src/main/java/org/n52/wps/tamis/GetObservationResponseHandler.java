@@ -139,13 +139,12 @@ public class GetObservationResponseHandler {
             LOGGER.error(e.getMessage());
         }
         
+        fewObject.setUnits(units);
+        
         Writer stream = new OutputStreamWriter(outputStream);
-
-//        new TimeSeriesToTalsim().setEvents(eventList).setOutputStream(stream).setType(type).setLocationId(locationId).setParameterId(parameterId).setTimeStepUnit(timeStepUnit)
-//                .setTimeStepMultiplier(timeStepMultiplier).setStartDate(startDate).setStartTime(startTime).setEndDate(endDate).setEndTime(endTime).setMissVal(missVal).setStationName(stationName)
-//                .setUnits(units).createTimeSeries();
+        
         new TimeSeriesToTalsim().setEvents(eventList).setOutputStream(stream).setFEWObject(fewObject)
-        .setStartDate(startDate).setStartTime(startTime).setEndDate(endDate).setEndTime(endTime).setUnits(units)
+        .setStartDate(startDate).setStartTime(startTime).setEndDate(endDate).setEndTime(endTime)
         .createTimeSeries();
 
         try {

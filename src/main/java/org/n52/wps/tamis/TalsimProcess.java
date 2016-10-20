@@ -113,7 +113,7 @@ public class TalsimProcess extends AbstractAnnotatedAlgorithm {
 		
 		TaMISProcessConfigModule taMISProcessConfigModule = (TaMISProcessConfigModule)configModule;
 		
-		String talsimTaskManagerPath = taMISProcessConfigModule.getTalSIMTaskManagerPath();
+		String talsimTaskManagerPath = taMISProcessConfigModule.getTalsimTaskManagerPath();
 		
 		String talsimTALSIMtoFEWSDataPath = taMISProcessConfigModule.getTalsimTALSIMtoFEWSDataPath();
 		
@@ -145,7 +145,7 @@ public class TalsimProcess extends AbstractAnnotatedAlgorithm {
 			dischargeFileOutputStream.close();
 			
 		} catch (Exception e) {
-			throw new RuntimeException("Could not create TalSIM input file for discharge.");
+			throw new RuntimeException("Could not create Talsim input file for discharge.");
 		}
 		
 		//create volume input for TalSIM
@@ -164,7 +164,7 @@ public class TalsimProcess extends AbstractAnnotatedAlgorithm {
 			volumeFileOutputStream.close();
 			
 		} catch (Exception e) {
-			throw new RuntimeException("Could not create TalSIM input file for volume.");
+			throw new RuntimeException("Could not create Talsim input file for volume.");
 		}
 		
 		//create inflow input for TalSIM
@@ -183,7 +183,7 @@ public class TalsimProcess extends AbstractAnnotatedAlgorithm {
 			inflowFileOutputStream.close();
 			
 		} catch (Exception e) {
-			throw new RuntimeException("Could not create TalSIM input file for inflow.");
+			throw new RuntimeException("Could not create Talsim input file for inflow.");
 		}
 		
         Runtime rt = Runtime.getRuntime();
@@ -198,10 +198,10 @@ public class TalsimProcess extends AbstractAnnotatedAlgorithm {
             PipedInputStream pipedIn = new PipedInputStream(pipedOut);
 
             // attach error stream reader
-            JavaProcessStreamReader errorStreamReader = new JavaProcessStreamReader(proc.getErrorStream(), "ERROR");
+            JavaProcessStreamReader errorStreamReader = new JavaProcessStreamReader(proc.getErrorStream(), "ERROR", pipedOut);
 
             // attach output stream reader
-            JavaProcessStreamReader outputStreamReader = new JavaProcessStreamReader(proc.getInputStream(), "OUTPUT", pipedOut);
+            JavaProcessStreamReader outputStreamReader = new JavaProcessStreamReader(proc.getInputStream(), "OUTPUT");
 
             // start them
             errorStreamReader.start();
@@ -217,17 +217,6 @@ public class TalsimProcess extends AbstractAnnotatedAlgorithm {
                     line = errorReader.readLine();
                 }
             }
-            
-//            // fetch errors if there are any
-//            String log = "";
-//            try (BufferedReader logReader = new BufferedReader(new InputStreamReader(pipedIn));) {
-//                String line = logReader.readLine();
-//                
-//                while (line != null) {
-//                    log = log.concat(line + lineSeparator);
-//                    line = logReader.readLine();
-//                }
-//            }
 
             try {
                 proc.waitFor();
@@ -237,10 +226,10 @@ public class TalsimProcess extends AbstractAnnotatedAlgorithm {
                 proc.destroy();
             }
 
-            //TODO create Observations from TalSIM output
+            //TODO create Observations from Talsim output
             
         } catch (IOException e) {
-            LOGGER.error("Something went wrong while executing TalSIM.", e);        
+            LOGGER.error("Something went wrong while executing Talsim.", e);        
         }
 
     }

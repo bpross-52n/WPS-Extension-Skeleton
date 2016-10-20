@@ -66,16 +66,6 @@ public class TimeSeriesToTalsim {
     
     private String valueAttribute = "value";
 
-    private String type;
-
-    private String locationId;
-
-    private String parameterId;
-
-    private String timeStepUnit;
-
-    private String timeStepMultiplier;
-
     private String startDate;
 
     private String startTime;
@@ -84,21 +74,13 @@ public class TimeSeriesToTalsim {
 
     private String endTime;
 
-    private String missVal;
-
-    private String stationName;
-
-    private String units;
-
     private Writer stream;
     
     private List<Event> events;
 
     private FEWObject fewObject;
     
-    public TimeSeriesToTalsim() {
-        
-    }
+    public TimeSeriesToTalsim() {}
     
     public void createTimeSeries(){  
         
@@ -285,48 +267,23 @@ public class TimeSeriesToTalsim {
     }
 
     public String getType() {
-        return type;
-    }
-
-    public TimeSeriesToTalsim setType(String type) {
-        this.type = type;
-        return this;
+        return fewObject.getType();
     }
 
     public String getLocationId() {
-        return locationId;
-    }
-
-    public TimeSeriesToTalsim setLocationId(String locationId) {
-        this.locationId = locationId;
-        return this;
+        return fewObject.getLocationId();
     }
 
     public String getParameterId() {
-        return parameterId;
-    }
-
-    public TimeSeriesToTalsim setParameterId(String parameterId) {
-        this.parameterId = parameterId;
-        return this;
+        return fewObject.getParameterId();
     }
 
     public String getTimeStepUnit() {
-        return timeStepUnit;
-    }
-
-    public TimeSeriesToTalsim setTimeStepUnit(String timeStepUnit) {
-        this.timeStepUnit = timeStepUnit;
-        return this;
+        return fewObject.getTimeStepUnit();
     }
 
     public String getTimeStepMultiplier() {
-        return timeStepMultiplier;
-    }
-
-    public TimeSeriesToTalsim setTimeStepMultiplier(String timeStepMultiplier) {
-        this.timeStepMultiplier = timeStepMultiplier;
-        return this;
+        return fewObject.getTimeStepMultiplier();
     }
 
     public String getStartDate() {
@@ -366,30 +323,15 @@ public class TimeSeriesToTalsim {
     }
 
     public String getMissVal() {
-        return missVal;
-    }
-
-    public TimeSeriesToTalsim setMissVal(String missVal) {
-        this.missVal = missVal;
-        return this;
+        return fewObject.getMissVal();
     }
 
     public String getStationName() {
-        return stationName;
-    }
-
-    public TimeSeriesToTalsim setStationName(String stationName) {
-        this.stationName = stationName;
-        return this;
+        return fewObject.getStationName();
     }
 
     public String getUnits() {
-        return units;
-    }
-
-    public TimeSeriesToTalsim setUnits(String units) {
-        this.units = units;
-        return this;
+        return fewObject.getUnits();
     }
 
     public Writer getStream() {
@@ -416,14 +358,6 @@ public class TimeSeriesToTalsim {
 
     public TimeSeriesToTalsim setFEWObject(FEWObject fewObject) {
         this.fewObject = fewObject;
-        setLocationId(fewObject.getLocationId());
-        setParameterId(fewObject.getParameterId());
-        setType(fewObject.getType());
-        setStationName(fewObject.getStationName());
-        setTimeStepUnit(fewObject.getTimeStepUnit());
-        setTimeStepMultiplier(fewObject.getTimeStepMultiplier());
-        setUnits(fewObject.getUnits())
-        .setMissVal(fewObject.getMissVal());
         return this;
     }
     

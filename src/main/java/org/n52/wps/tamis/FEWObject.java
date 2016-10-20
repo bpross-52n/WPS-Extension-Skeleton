@@ -53,7 +53,7 @@ public class FEWObject {
 
     private String parameterId;
 
-    private String timeStepUnit = "second";
+    private String timeStepUnit = "second";//seems to be fixed
 
     private String timeStepMultiplier;
 
@@ -65,9 +65,9 @@ public class FEWObject {
 
     private String endTime;
 
-    private String missVal = "-999";
+    private String missVal = "-999";//seems to be fixed
 
-    private String stationName = "Bevertalsperre";
+    private String stationName = "Bevertalsperre";//seems to be fixed
 
     private String units;
 
