@@ -49,7 +49,7 @@ public class GetObservationResponseHandler {
 
     private List<Event> eventList;
 
-	private OutputStream outputStream;
+    private OutputStream outputStream;
 
     public GetObservationResponseHandler() {
         eventList = new ArrayList<>();
@@ -66,62 +66,63 @@ public class GetObservationResponseHandler {
 
             LOGGER.info("Got {} observations.", dataArray.length);
 
-            OMObservationType observation = dataArray[0].getOMObservation();//TODO check
+            OMObservationType observation = dataArray[0].getOMObservation();// TODO
+                                                                            // check
 
             Object parsedObject = new OmDecoderv20().decode(observation);
 
             if (parsedObject instanceof OmObservation) {
-                
-                OmObservation omObservation = (OmObservation)parsedObject;
+
+                OmObservation omObservation = (OmObservation) parsedObject;
 
                 Time phenomenonTime = omObservation.getPhenomenonTime();
-                
-                if(phenomenonTime instanceof TimePeriod){
-                    
-                    TimePeriod timePeriod = (TimePeriod)phenomenonTime;
-                    
+
+                if (phenomenonTime instanceof TimePeriod) {
+
+                    TimePeriod timePeriod = (TimePeriod) phenomenonTime;
+
                     DateTime start = timePeriod.getStart();
                     DateTime end = timePeriod.getEnd();
-                    
+
                     startDate = start.toString(TimeUtils.DATE_FORMATTER);
                     startTime = start.toString(TimeUtils.TIME_FORMATTER);
                     endDate = end.toString(TimeUtils.DATE_FORMATTER);
-                    endTime = end.toString(TimeUtils.TIME_FORMATTER);                    
+                    endTime = end.toString(TimeUtils.TIME_FORMATTER);
                 }
-                
-                //get unit of measurement
-                if(missVal == null || missVal.equals("")){
+
+                // get unit of measurement
+                if (missVal == null || missVal.equals("")) {
                     missVal = omObservation.getNoDataValue() != null ? omObservation.getNoDataValue() : "";
                 }
-                
+
                 String observedProperty = "";
-                
-                try {                    
-                    observedProperty = omObservation.getObservationConstellation().getObservableProperty().getIdentifier();                    
+
+                try {
+                    observedProperty =
+                            omObservation.getObservationConstellation().getObservableProperty().getIdentifier();
                 } catch (Exception e) {
                     LOGGER.info("Could not fetch observedProperty.");
                 }
-                
-                
+
                 Object value = omObservation.getValue().getValue().getValue();
 
                 if (value instanceof SweDataArray) {
                     SweDataArray sweDataArray = (SweDataArray) value;
 
                     Object elementType = sweDataArray.getElementType();
-                    
-                    if(elementType instanceof DataRecord){
-                        DataRecord dataRecord = (DataRecord)elementType;
+
+                    if (elementType instanceof DataRecord) {
+                        DataRecord dataRecord = (DataRecord) elementType;
                         for (SweField sweField : dataRecord.getFields()) {
-                            if(observedProperty != null && sweField.getName().getValue().equals(observedProperty)){
-                                SweAbstractDataComponent element = sweField.getElement();                                
-                                if(element instanceof SweQuantity){
-                                    units = ((SweQuantity)element).getUom();
-                                }                                
+                            if (observedProperty != null && sweField.getName().getValue().equals(observedProperty)) {
+                                SweAbstractDataComponent element = sweField.getElement();
+                                if (element instanceof SweQuantity) {
+                                    units = ((SweQuantity) element).getUom();
+                                }
                             }
                         }
                     }
-                    
+
                     LOGGER.info("Got SWE data array of leghth {}.", sweDataArray.getElementCount().getValue());
 
                     for (List<String> sweDataArrayValues : sweDataArray.getValues()) {
@@ -138,23 +139,23 @@ public class GetObservationResponseHandler {
         } catch (XmlException | IOException | OwsExceptionReport e) {
             LOGGER.error(e.getMessage());
         }
-        
+
         fewObject.setUnits(units);
         fewObject.setEventList(eventList);
         fewObject.setStartDate(startDate);
         fewObject.setStartTime(startTime);
         fewObject.setEndDate(endDate);
         fewObject.setEndTime(endTime);
-        
+
         Writer stream = new OutputStreamWriter(outputStream);
-        
+
         new TimeSeriesToTalsim().setOutputStream(stream).setFEWObject(fewObject).createTimeSeries();
 
         try {
-			stream.close();
-		} catch (IOException e) {
-			/* ignore */
-		}
+            stream.close();
+        } catch (IOException e) {
+            /* ignore */
+        }
     }
 
     private void checkPrerequisites() {
@@ -162,7 +163,7 @@ public class GetObservationResponseHandler {
             throw new IllegalArgumentException("InputStream not set.");
         }
         if (outputStream == null) {
-        	throw new IllegalArgumentException("OutputStream not set.");
+            throw new IllegalArgumentException("OutputStream not set.");
         }
     }
 
@@ -170,10 +171,10 @@ public class GetObservationResponseHandler {
         this.inputStream = stream;
         return this;
     }
-    
+
     public GetObservationResponseHandler setOutputStream(OutputStream stream) {
-    	this.outputStream = stream;
-    	return this;
+        this.outputStream = stream;
+        return this;
     }
 
     public FEWObject getFEWObject() {

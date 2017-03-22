@@ -22,6 +22,8 @@ public class TaMISProcessConfigModule extends ClassKnowingModule {
 	
 	public static final String talsimFEWStoTALSIMDataPathKey = "talsimFEWStoTALSIMData_path";
 	
+	public static final String sosURLKey = "sos_url";
+	
 	private ConfigurationEntry<String> talsimTaskManagerPathEntry = new StringConfigurationEntry(talsimTaskManagerPathKey, "TalSIM TaskManager path", "Path to TalSIM TaskManager executable",
 			true, "D:/Programme/talsim-ng/customers/wv/applications/TaskMgr/SydroTaskMgr.exe");
 	
@@ -30,14 +32,19 @@ public class TaMISProcessConfigModule extends ClassKnowingModule {
 	
 	private ConfigurationEntry<String> talsimTALSIMtoFEWSDataPathEntry = new StringConfigurationEntry(talsimTALSIMtoFEWSDataPathKey, "TalSIM TALSIMtoFEWS path", "Path to TalSIM output data directory",
 			true, "D:/Programme/talsim-ng/customers/wv/projectData/tamis/extern/TALSIMtoFEWS");
+	
+	private ConfigurationEntry<String> sosURLEntry = new StringConfigurationEntry(sosURLKey, "Transactional SOS URL", "URL of the transactional SOS for storing the outputs.",
+	        true, "http://tamis.dev.52north.org/sos/service");
 
-	private List<? extends ConfigurationEntry<?>> configurationEntries = Arrays.asList(talsimTaskManagerPathEntry, talsimFEWStoTALSIMDataPathEntry, talsimTALSIMtoFEWSDataPathEntry);
+	private List<? extends ConfigurationEntry<?>> configurationEntries = Arrays.asList(talsimTaskManagerPathEntry, talsimFEWStoTALSIMDataPathEntry, talsimTALSIMtoFEWSDataPathEntry, sosURLEntry);
 	
 	private String talsimTALSIMtoFEWSDataPath;	
 
 	private String talsimFEWStoTALSIMDataPath;	
 	
 	private String talsimTaskManagerPath;
+	
+	private String sosURL;
 	
 	@Override
 	public String getModuleName() {
@@ -101,7 +108,16 @@ public class TaMISProcessConfigModule extends ClassKnowingModule {
 		this.talsimFEWStoTALSIMDataPath = talsimFEWStoTALSIMDataPath;
 	}
 
-	@Override
+	public String getSosURL() {
+            return sosURL;
+        }
+
+	@ConfigurationKey(key = sosURLKey)
+        public void setSosURL(String sosURL) {
+            this.sosURL = sosURL;
+        }
+
+        @Override
 	public String getClassName() {
 		return DummyAlgorithmRepository.class.getName();
 	}

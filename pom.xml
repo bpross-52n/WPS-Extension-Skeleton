@@ -124,6 +124,11 @@
 			<artifactId>coding-wml-v20</artifactId>
 			<version>5.0.0-SNAPSHOT</version>
 		</dependency>
+		<dependency>	
+		    <groupId>org.n52</groupId>
+	        <artifactId>talsim-sos-converter</artifactId>
+	        <version>0.0.1-SNAPSHOT</version>
+		</dependency>
 		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>javax.servlet-api</artifactId>

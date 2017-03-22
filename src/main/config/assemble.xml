@@ -25,6 +25,7 @@
 				<include>jstl:jstl</include>
 				<include>stax:stax-api</include>
 				<include>org.n52.wps.tamis:talsim-process</include>
+				<include>org.n52:talsim-sos-converter</include>
 				<include>org.n52.sensorweb.sos:third-party-ncname-resolver</include>
 				<include>xmlunit:xmlunit</include>
 			</includes>
