@@ -10,6 +10,7 @@ import java.util.List;
 
 import org.apache.xmlbeans.XmlException;
 import org.joda.time.DateTime;
+import org.joda.time.Seconds;
 import org.n52.iceland.exception.ows.OwsExceptionReport;
 import org.n52.iceland.ogc.gml.time.Time;
 import org.n52.iceland.ogc.gml.time.TimePeriod;
@@ -44,6 +45,8 @@ public class GetObservationResponseHandler {
     private String missVal;
 
     private String units;
+    
+    private String timeStepMultiplier;
 
     private FEWObject fewObject;
 
@@ -123,16 +126,28 @@ public class GetObservationResponseHandler {
                         }
                     }
 
-                    LOGGER.info("Got SWE data array of leghth {}.", sweDataArray.getElementCount().getValue());
+                    LOGGER.info("Got SWE data array of length {}.", sweDataArray.getElementCount().getValue());
 
+                    DateTime firstDateTime = null;
+                    DateTime secondDateTime = null;
+                    
                     for (List<String> sweDataArrayValues : sweDataArray.getValues()) {
                         if (sweDataArrayValues.size() > 1) {
                             DateTime dateTime = DateTime.parse(sweDataArrayValues.get(0));
+                            if(firstDateTime == null){
+                                firstDateTime = dateTime;
+                            }else if(firstDateTime != null && secondDateTime == null){
+                                secondDateTime = dateTime;
+                            }
                             String value1 = sweDataArrayValues.get(1);
                             eventList.add(new Event().setDateTime(dateTime).setValue(value1));
                         }
 
                     }
+                    
+                    Seconds seconds = Seconds.secondsBetween(firstDateTime, secondDateTime);
+                    
+                    timeStepMultiplier = "" + seconds.getSeconds();
                 }
             }
 
@@ -146,6 +161,7 @@ public class GetObservationResponseHandler {
         fewObject.setStartTime(startTime);
         fewObject.setEndDate(endDate);
         fewObject.setEndTime(endTime);
+        fewObject.setTimeStepMultiplier(timeStepMultiplier);
 
         Writer stream = new OutputStreamWriter(outputStream);
 

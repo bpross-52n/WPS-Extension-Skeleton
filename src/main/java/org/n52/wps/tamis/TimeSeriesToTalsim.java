@@ -179,8 +179,6 @@ public class TimeSeriesToTalsim {
         }        
     }
     
-    
-    
     private void createDocumentStart(XMLStreamWriter idxtw) throws XMLStreamException {
         idxtw.setDefaultNamespace(namespace);
         idxtw.writeStartDocument("utf-8", "1.0");
