@@ -12,22 +12,24 @@
 	<dependencySets>
 		<dependencySet>
 			<includes>
-				<include>org.n52.sensorweb:52n-xml-gmlcov-v10</include>
-				<include>org.n52.sensorweb:52n-xml-waterML-dr-v20</include>
-				<include>org.n52.sensorweb:52n-xml-waterML-v20</include>
+				<include>org.n52.sensorweb:52n-xml-filter-v20</include>
+				<include>org.n52.sensorweb:52n-xml-swes-v20</include>
+				<include>org.n52.sensorweb:52n-xml-sos-v20</include>
+				<include>org.n52.sensorweb:52n-xml-sweCommon-v20</include>
+				<include>org.n52.sensorweb:52n-xml-sampling-v20</include>
 				<include>org.n52.sensorweb.sos:api</include>
-				<include>org.n52.sensorweb.sos:coding-ows-v110</include>
+<!-- 				<include>org.n52.sensorweb.sos:coding-ows-v110</include> -->
 				<include>org.n52.sensorweb.sos:coding-sos-v20</include>
 				<include>org.n52.sensorweb.sos:coding-wml-v20</include>
 				<include>commons-logging:commons-logging</include>
-				<include>org.hamcrest:hamcrest-all</include>
+<!-- 				<include>org.hamcrest:hamcrest-all</include> -->
 <!-- 				<include>org.n52.iceland:iceland</include> -->
 				<include>jstl:jstl</include>
-				<include>stax:stax-api</include>
+<!-- 				<include>stax:stax-api</include> -->
 				<include>org.n52.wps.tamis:talsim-process</include>
 				<include>org.n52:talsim-sos-converter</include>
 				<include>org.n52.sensorweb.sos:third-party-ncname-resolver</include>
-				<include>xmlunit:xmlunit</include>
+<!-- 				<include>xmlunit:xmlunit</include> -->
 			</includes>
 			<outputDirectory>deploy-to-wps</outputDirectory>
 		</dependencySet>
