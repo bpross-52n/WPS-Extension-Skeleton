@@ -125,7 +125,7 @@ public class TimeSeriesAPIResponseHandler {
             LOGGER.error(e.getMessage());
         }
 
-        fewObject.setUnits(units);
+//        fewObject.setUnits(units);
         fewObject.setEventList(eventList);
         fewObject.setStartDate(startDate);
         fewObject.setStartTime(startTime);

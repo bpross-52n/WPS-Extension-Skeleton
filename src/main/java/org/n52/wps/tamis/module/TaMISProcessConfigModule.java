@@ -24,6 +24,8 @@ public class TaMISProcessConfigModule extends ClassKnowingModule {
 	
 	public static final String sosURLKey = "sos_url";
 	
+	public static final String credentialsPathKey = "credentials_path";
+	
 	private ConfigurationEntry<String> talsimTaskManagerPathEntry = new StringConfigurationEntry(talsimTaskManagerPathKey, "TalSIM TaskManager path", "Path to TalSIM TaskManager executable",
 			true, "D:/Programme/talsim-ng/customers/wv/applications/TaskMgr/SydroTaskMgr.exe");
 	
@@ -35,8 +37,11 @@ public class TaMISProcessConfigModule extends ClassKnowingModule {
 	
 	private ConfigurationEntry<String> sosURLEntry = new StringConfigurationEntry(sosURLKey, "Transactional SOS URL", "URL of the transactional SOS for storing the outputs.",
 	        true, "http://tamis.dev.52north.org/sos/service");
+	
+	private ConfigurationEntry<String> credentialsPathEntry = new StringConfigurationEntry(credentialsPathKey, "Timeseries API credentials", "Path to credentials for secured Timeseries API.",
+	        true, "C:/Users/bpr/Documents/52North/tamis-sos.properties2");
 
-	private List<? extends ConfigurationEntry<?>> configurationEntries = Arrays.asList(talsimTaskManagerPathEntry, talsimFEWStoTALSIMDataPathEntry, talsimTALSIMtoFEWSDataPathEntry, sosURLEntry);
+	private List<? extends ConfigurationEntry<?>> configurationEntries = Arrays.asList(talsimTaskManagerPathEntry, talsimFEWStoTALSIMDataPathEntry, talsimTALSIMtoFEWSDataPathEntry, sosURLEntry, credentialsPathEntry);
 	
 	private String talsimTALSIMtoFEWSDataPath;	
 
@@ -45,6 +50,8 @@ public class TaMISProcessConfigModule extends ClassKnowingModule {
 	private String talsimTaskManagerPath;
 	
 	private String sosURL;
+	
+	private String credentialsPath;
 	
 	@Override
 	public String getModuleName() {
@@ -115,6 +122,15 @@ public class TaMISProcessConfigModule extends ClassKnowingModule {
 	@ConfigurationKey(key = sosURLKey)
         public void setSosURL(String sosURL) {
             this.sosURL = sosURL;
+        }
+
+        public String getCredentialsPath() {
+            return credentialsPath;
+        }
+
+        @ConfigurationKey(key = credentialsPathKey)
+        public void setCredentialsPath(String credentialsPath) {
+            this.credentialsPath = credentialsPath;
         }
 
         @Override

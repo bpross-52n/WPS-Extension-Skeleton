@@ -1,6 +1,7 @@
 package org.n52.wps.tamis;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -12,14 +13,17 @@ import java.io.PipedOutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
+import java.util.Properties;
 
 import org.apache.xmlbeans.XmlObject;
 import org.n52.wps.algorithm.annotation.Algorithm;
 import org.n52.wps.algorithm.annotation.ComplexDataInput;
-import org.n52.wps.algorithm.annotation.ComplexDataOutput;
 import org.n52.wps.algorithm.annotation.Execute;
+import org.n52.wps.algorithm.annotation.LiteralDataInput;
+import org.n52.wps.algorithm.annotation.LiteralDataOutput;
 import org.n52.wps.commons.WPSConfig;
 import org.n52.wps.io.data.binding.complex.GenericXMLDataBinding;
+import org.n52.wps.io.data.binding.literal.LiteralStringBinding;
 import org.n52.wps.server.AbstractAnnotatedAlgorithm;
 import org.n52.wps.server.grass.util.JavaProcessStreamReader;
 import org.n52.wps.tamis.module.TaMISProcessConfigModule;
@@ -46,67 +50,71 @@ public class TalsimProcess extends AbstractAnnotatedAlgorithm {
 
     private final String outputFilename = "TalsimResult.xml";
 
-    private XmlObject volumeInput;
+    private String volumeInput;
 
-    private XmlObject dischargeInput;
+    private String dischargeInput;
 
-    private XmlObject inflowInput;
+    private String inflowInput;
 
-    private XmlObject inflowOutput;
+    private String inflowOutput;
 
-    private XmlObject volumeOutput;
+    private String volumeOutput;
 
-    private XmlObject dischargeOutput;
+    private String dischargeOutput;
 
-    private XmlObject waterlevelOutput;
+    private String waterlevelOutput;
 
-    private XmlObject spillwayDischargeOutput;
+    private String spillwayDischargeOutput;
 
-    @ComplexDataOutput(
-            identifier = "spillway-discharge-output", binding = GenericXMLDataBinding.class)
-    public XmlObject getSpillwayDischargeOutput() {
+    private String userName;
+
+    private String password;
+
+    @LiteralDataOutput(
+            identifier = "spillway-discharge-output")
+    public String getSpillwayDischargeOutput() {
         return spillwayDischargeOutput;
     }
 
-    @ComplexDataOutput(
-            identifier = "waterlevel-output", binding = GenericXMLDataBinding.class)
-    public XmlObject getWaterLevelOutput() {
+    @LiteralDataOutput(
+            identifier = "waterlevel-output")
+    public String getWaterLevelOutput() {
         return waterlevelOutput;
     }
 
-    @ComplexDataOutput(
-            identifier = "discharge-output", binding = GenericXMLDataBinding.class)
-    public XmlObject getDischargeOutput() {
+    @LiteralDataOutput(
+            identifier = "discharge-output")
+    public String getDischargeOutput() {
         return dischargeOutput;
     }
 
-    @ComplexDataOutput(
-            identifier = "inflow-output", binding = GenericXMLDataBinding.class)
-    public XmlObject getInflowOutput() {
+    @LiteralDataOutput(
+            identifier = "inflow-output")
+    public String getInflowOutput() {
         return inflowOutput;
     }
 
-    @ComplexDataOutput(
-            identifier = "volume-output", binding = GenericXMLDataBinding.class)
-    public XmlObject getVolumeOutput() {
+    @LiteralDataOutput(
+            identifier = "volume-output")
+    public String getVolumeOutput() {
         return volumeOutput;
     }
 
-    @ComplexDataInput(
-            binding = GenericXMLDataBinding.class, identifier = "discharge-input", minOccurs = 1, maxOccurs = 1)
-    public void setDischarge(XmlObject discharge) {
+    @LiteralDataInput(
+            binding = LiteralStringBinding.class, identifier = "discharge-input", minOccurs = 1, maxOccurs = 1)
+    public void setDischarge(String discharge) {
         this.dischargeInput = discharge;
     }
 
-    @ComplexDataInput(
-            binding = GenericXMLDataBinding.class, identifier = "volume-input", minOccurs = 1, maxOccurs = 1)
-    public void setVolume(XmlObject volume) {
+    @LiteralDataInput(
+            binding = LiteralStringBinding.class, identifier = "volume-input", minOccurs = 1, maxOccurs = 1)
+    public void setVolume(String volume) {
         this.volumeInput = volume;
     }
 
-    @ComplexDataInput(
-            binding = GenericXMLDataBinding.class, identifier = "inflow-input", minOccurs = 1, maxOccurs = 1)
-    public void setInflow(XmlObject inflow) {
+    @LiteralDataInput(
+            binding = LiteralStringBinding.class, identifier = "inflow-input", minOccurs = 1, maxOccurs = 1)
+    public void setInflow(String inflow) {
         this.inflowInput = inflow;
     }
 
@@ -130,6 +138,19 @@ public class TalsimProcess extends AbstractAnnotatedAlgorithm {
 
         String sosURLString = taMISProcessConfigModule.getSosURL();
 
+        String credentialsPath = taMISProcessConfigModule.getCredentialsPath();
+        
+        Properties credentialsProperties = new Properties();
+        
+        try {
+            credentialsProperties.load(new FileInputStream(new File(credentialsPath)));
+        } catch (IOException e3) {
+            LOGGER.error("Could not load credentials for secured Timeseries API: " + credentialsPath, e3);
+        }
+        
+        userName = credentialsProperties.getProperty("username");
+        password = credentialsProperties.getProperty("password");
+        
         URL sosURL = null;
         try {
             sosURL = new URL(sosURLString);
@@ -156,13 +177,18 @@ public class TalsimProcess extends AbstractAnnotatedAlgorithm {
 
             FEWObject dischargeFEWObject = new FEWObject().setType(FEWObject.Types.instantaneous.toString())
                     .setLocationId(FEWObject.LocationID.TBEV.toString())
-                    .setParameterId(FEWObject.ParameterId.QA1.getParameterID()).setTimeStepMultiplier("900");// TODO
-                                                                                                             // calculate
-                                                                                                             // from
-                                                                                                             // timeseries
+                    .setParameterId(FEWObject.ParameterId.QA1.getParameterID()).setUnits(FEWObject.Unit.m3persecond.getUnitForTalSIM());
+            try {
+                
+                new TimeSeriesAPIResponseHandler().setInputStream(Util.connectWithBasicAuth(dischargeInput, userName, password))
+                        .setOutputStream(dischargeFileOutputStream).setFEWObject(dischargeFEWObject).handle();
+                
+            } catch (Exception e) {
+                LOGGER.error("Could not fetch timeseries from: " + dischargeInput, e);
+            }
 
-            new GetObservationResponseHandler().setInputStream(dischargeInput.newInputStream())
-                    .setOutputStream(dischargeFileOutputStream).setFEWObject(dischargeFEWObject).handle();
+//            new TimeSeriesAPIResponseHandler().setInputStream(new ByteArrayInputStream(dischargeInput.getBytes()))
+//                    .setOutputStream(dischargeFileOutputStream).setFEWObject(dischargeFEWObject).handle();
 
             dischargeFileOutputStream.close();
 
@@ -177,13 +203,15 @@ public class TalsimProcess extends AbstractAnnotatedAlgorithm {
 
             FEWObject volumeFEWObject = new FEWObject().setType(FEWObject.Types.instantaneous.toString())
                     .setLocationId(FEWObject.LocationID.TBEV.toString())
-                    .setParameterId(FEWObject.ParameterId.Volumen.getParameterID()).setTimeStepMultiplier("900");// TODO
-                                                                                                                 // calculate
-                                                                                                                 // from
-                                                                                                                 // timeseries
-
-            new GetObservationResponseHandler().setInputStream(volumeInput.newInputStream())
-                    .setOutputStream(volumeFileOutputStream).setFEWObject(volumeFEWObject).handle();
+                    .setParameterId(FEWObject.ParameterId.Volumen.getParameterID()).setUnits(FEWObject.Unit.millionm3.getUnitForTalSIM());
+            try {
+                
+                new TimeSeriesAPIResponseHandler().setInputStream(Util.connectWithBasicAuth(volumeInput, userName, password))
+                        .setOutputStream(volumeFileOutputStream).setFEWObject(volumeFEWObject).handle();
+                
+            } catch (Exception e) {
+                LOGGER.error("Could not fetch timeseries from: " + volumeInput, e);
+            }
 
             volumeFileOutputStream.close();
 
@@ -198,13 +226,15 @@ public class TalsimProcess extends AbstractAnnotatedAlgorithm {
 
             FEWObject inflowFEWObject = new FEWObject().setType(FEWObject.Types.instantaneous.toString())
                     .setLocationId(FEWObject.LocationID.EBEV.toString())
-                    .setParameterId(FEWObject.ParameterId.Zufluss.getParameterID()).setTimeStepMultiplier("900");// TODO
-                                                                                                                 // calculate
-                                                                                                                 // from
-                                                                                                                 // timeseries
-
-            new GetObservationResponseHandler().setInputStream(inflowInput.newInputStream())
-                    .setOutputStream(inflowFileOutputStream).setFEWObject(inflowFEWObject).handle();
+                    .setParameterId(FEWObject.ParameterId.Zufluss.getParameterID()).setUnits(FEWObject.Unit.m3persecond.getUnitForTalSIM());
+            try {
+                
+                new TimeSeriesAPIResponseHandler().setInputStream(Util.connectWithBasicAuth(inflowInput, userName, password))
+                        .setOutputStream(inflowFileOutputStream).setFEWObject(inflowFEWObject).handle();
+                
+            } catch (Exception e) {
+                LOGGER.error("Could not fetch timeseries from: " + inflowInput, e);
+            }
 
             inflowFileOutputStream.close();
 

@@ -2,9 +2,6 @@ package org.n52.wps.tamis;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.UUID;
 
 import org.junit.Test;
@@ -17,7 +14,7 @@ public class TimeSeriesToTalsimTest extends AbstractITClass {
 
         FEWObject fewObject = new FEWObject().setType(FEWObject.Types.instantaneous.toString())
                 .setLocationId(FEWObject.LocationID.TBEV.toString())
-                .setParameterId(FEWObject.ParameterId.QA1.getParameterID());
+                .setParameterId(FEWObject.ParameterId.QA1.getParameterID()).setUnits(FEWObject.Unit.m3persecond.getUnitForTalSIM());
 
 //        URL url = new URL(
 //                "http://fluggs.wupperverband.de/sos2-tamis/service?service=SOS&version=2.0.0&request=GetObservation&offering=Zeitreihen_Einzelwert&observedProperty=Speicherinhalt&procedure=Einzelwert&namespaces=xmlns(sams%2Chttp%3A%2F%2Fwww.opengis.net%2FsamplingSpatial%2F2.0)%2Cxmlns(om%2Chttp%3A%2F%2Fwww.opengis.net%2Fom%2F2.0)&featureOfInterest=Bever-Talsperre_Windenhaus&temporalFilter=om%3AphenomenonTime%2C2016-06-01T00%3A00%3A00.000Z%2F2016-06-10T23%3A59%3A59.999Z&responseFormat=http://www.opengis.net/om/2.0");
