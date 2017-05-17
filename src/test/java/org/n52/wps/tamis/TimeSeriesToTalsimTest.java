@@ -28,8 +28,12 @@ public class TimeSeriesToTalsimTest extends AbstractITClass {
         
         FileOutputStream fileOutputStream = new FileOutputStream("d:/tmp/talsim" + UUID.randomUUID());
         
-        new TimeSeriesAPIResponseHandler().setOutputStream(fileOutputStream).setInputStream(getClass().getResourceAsStream("example.json"))
-        .setFEWObject(fewObject).handle();
+        TimeSeriesAPIResponseHandler apiResponseHandler = new TimeSeriesAPIResponseHandler().setOutputStream(fileOutputStream).setInputStream(getClass().getResourceAsStream("example.json"))
+        .setFEWObject(fewObject).prepareFEWObject();
+        
+        apiResponseHandler.fillEventList();
+        
+        apiResponseHandler.writeFEWObject();
     }
 
 }

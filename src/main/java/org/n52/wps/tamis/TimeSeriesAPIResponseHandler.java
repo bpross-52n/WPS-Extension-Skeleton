@@ -31,10 +31,6 @@ public class TimeSeriesAPIResponseHandler {
     private String endDate;
 
     private String endTime;
-
-    private String missVal;
-
-    private String units;
     
     private String timeStepMultiplier;
 
@@ -46,18 +42,21 @@ public class TimeSeriesAPIResponseHandler {
         
     private ObjectMapper m;
 
+    private ArrayNode valuesArrayNode;
+
     public TimeSeriesAPIResponseHandler() {
         eventList = new ArrayList<>();
 
         m = new ObjectMapper();
     }
 
-    public void handle() {
+    public TimeSeriesAPIResponseHandler prepareFEWObject() {
 
         checkPrerequisites();
         
         //fix to one hour (3600 seconds)
-        timeStepMultiplier = "3600";
+        //fix to quarter hour (900 seconds)
+        timeStepMultiplier = "900";
 
         try {
 
@@ -67,77 +66,104 @@ public class TimeSeriesAPIResponseHandler {
 
                 if (valuesNode instanceof ArrayNode) {
                     
-                    ArrayNode valuesArrayNode = (ArrayNode)valuesNode;
+                    valuesArrayNode = (ArrayNode)valuesNode;
                     
                     LOGGER.info("Got JSON array of length {}.", valuesArrayNode.size());
                     
-                    DateTime currentHourDT = null;
-                    
                     Iterator<JsonNode> valuesIterator = valuesArrayNode.iterator();
                     
-                    while (valuesIterator.hasNext()) {
-                        JsonNode jsonNode = (JsonNode) valuesIterator.next();
-
-                        JsonNode timeStampNode = jsonNode.path("timestamp");
-                        JsonNode valueNode = jsonNode.path("value");
-                       
-                        String timeString = TimeUtils.convertFromUNIXTime(timeStampNode.asText());
-                        
-                        DateTime dateTime = DateTime.parse(timeString);
-                        
-                        DateTime fullHour = dateTime.hourOfDay().roundFloorCopy();
-                        
-                        if(startDate == null || startDate.isEmpty()){
-                            startDate = fullHour.toString(TimeUtils.DATE_FORMATTER);
-                            startTime = fullHour.toString(TimeUtils.TIME_FORMATTER);
-                        }                        
-                        
-                        String value = valueNode.asText();
-                        
-                        if(currentHourDT != null){
-                            
-                            if( fullHour.isAfter(currentHourDT)){
-                                
-                                if(Hours.hoursBetween(currentHourDT, fullHour).getHours() > 1){
-                                    
-                                    fillUpGap(currentHourDT, fullHour, value);
-                                    
-                                }else {                                    
-                                    eventList.add(new Event().setDateTime(fullHour).setValue(value));                                    
-                                }
-                                currentHourDT = fullHour;                                
-                            }
-                            
-                        }else{                            
-                            currentHourDT = fullHour;
-                            
-                            eventList.add(new Event().setDateTime(fullHour).setValue(value));                            
-                        }
-                        
-                        if(!valuesIterator.hasNext()){
-                            endDate = fullHour.toString(TimeUtils.DATE_FORMATTER);
-                            endTime = fullHour.toString(TimeUtils.TIME_FORMATTER);                            
-                        }
-                    }
+                    getStartAndEndDateTime(valuesIterator);
                 }
 
         } catch (IOException e) {
             LOGGER.error(e.getMessage());
         }
+        fewObject.setTimeStepMultiplier(timeStepMultiplier);
+        return this;
+    }
+    
+    public void fillEventList() {
+        
+        Iterator<JsonNode> valuesIterator = valuesArrayNode.iterator();
+        
+        DateTime currentHourDT = null;
+        
+        while (valuesIterator.hasNext()) {
+            JsonNode jsonNode = (JsonNode) valuesIterator.next();
 
-//        fewObject.setUnits(units);
-        fewObject.setEventList(eventList);
+            JsonNode timeStampNode = jsonNode.path("timestamp");
+            JsonNode valueNode = jsonNode.path("value");
+           
+            String timeString = TimeUtils.convertFromUNIXTime(timeStampNode.asText());
+            
+            DateTime dateTime = DateTime.parse(timeString);
+            
+            DateTime fullHour = dateTime.hourOfDay().roundFloorCopy();
+            String value = valueNode.asText();
+            
+            if(currentHourDT != null){
+                
+                if( fullHour.isAfter(currentHourDT)){
+                    
+//                    if(Hours.hoursBetween(currentHourDT, fullHour).getHours() > 1){
+                        
+                        fillUpGap(currentHourDT, fullHour, value);
+                        
+//                    }else {                                    
+//                        eventList.add(new Event().setDateTime(fullHour).setValue(value));                                    
+//                    }
+                    currentHourDT = fullHour;                                
+                }
+                
+            }else{                            
+                currentHourDT = fullHour;
+                
+                eventList.add(new Event().setDateTime(fullHour).setValue(value));                            
+            }
+        }
+        
         fewObject.setStartDate(startDate);
         fewObject.setStartTime(startTime);
         fewObject.setEndDate(endDate);
         fewObject.setEndTime(endTime);
-        fewObject.setTimeStepMultiplier(timeStepMultiplier);
+        fewObject.setEventList(eventList);
+        
+    }
+
+    private void getStartAndEndDateTime(Iterator<JsonNode> valuesIterator) {
+        
+        while (valuesIterator.hasNext()) {
+            JsonNode jsonNode = (JsonNode) valuesIterator.next();
+
+            JsonNode timeStampNode = jsonNode.path("timestamp");
+           
+            String timeString = TimeUtils.convertFromUNIXTime(timeStampNode.asText());
+            
+            DateTime dateTime = DateTime.parse(timeString);
+            
+            DateTime fullHour = dateTime.hourOfDay().roundFloorCopy();
+            
+            if(startDate == null || startDate.isEmpty()){
+                startDate = fullHour.toString(TimeUtils.DATE_FORMATTER);
+                startTime = fullHour.toString(TimeUtils.TIME_FORMATTER);
+            }
+            
+            if(!valuesIterator.hasNext()){
+                endDate = fullHour.toString(TimeUtils.DATE_FORMATTER);
+                endTime = fullHour.toString(TimeUtils.TIME_FORMATTER);
+            }
+        }
+        
+    }
+
+    public void writeFEWObject(){
 
         Writer stream = new OutputStreamWriter(outputStream);
 
         new TimeSeriesToTalsim().setOutputStream(stream).setFEWObject(fewObject).createTimeSeries();
 
         try {
+            outputStream.close();
             stream.close();
         } catch (IOException e) {
             /* ignore */
@@ -152,8 +178,15 @@ public class TimeSeriesAPIResponseHandler {
         
         Hours hours = Hours.hoursBetween(start, end);
                 
+        DateTime currentTime = start;
+        
         for (int i = 0; i < hours.getHours(); i++) {
-            eventList.add(new Event().setDateTime(start.plusHours(i)).setValue(value));
+            currentTime = start.plusHours(i);
+            for (int j = 0; j <= 3; j++) {
+                int minutes = 15 * (j+1);
+                eventList.add(new Event().setDateTime(currentTime.plusMinutes(minutes)).setValue(value));
+//                eventList.add(new Event().setDateTime(start.plusHours(i)).setValue(value));
+            }
         }
     }
     
@@ -191,5 +224,37 @@ public class TimeSeriesAPIResponseHandler {
 
     public void setEventList(List<Event> eventList) {
         this.eventList = eventList;
+    }
+
+    public String getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(String startDate) {
+        this.startDate = startDate;
+    }
+
+    public String getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(String startTime) {
+        this.startTime = startTime;
+    }
+
+    public String getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(String endDate) {
+        this.endDate = endDate;
+    }
+
+    public String getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(String endTime) {
+        this.endTime = endTime;
     }
 }
