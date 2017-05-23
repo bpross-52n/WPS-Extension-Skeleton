@@ -43,6 +43,10 @@ public class TimeSeriesAPIResponseHandler {
     private ObjectMapper m;
 
     private ArrayNode valuesArrayNode;
+    
+    private DateTime startDateTime;
+    
+    private DateTime endDateTime;
 
     public TimeSeriesAPIResponseHandler() {
         eventList = new ArrayList<>();
@@ -56,7 +60,8 @@ public class TimeSeriesAPIResponseHandler {
         
         //fix to one hour (3600 seconds)
         //fix to quarter hour (900 seconds)
-        timeStepMultiplier = "900";
+        //fix to half an hour (1800 seconds)
+        timeStepMultiplier = "1800";
 
         try {
 
@@ -101,17 +106,19 @@ public class TimeSeriesAPIResponseHandler {
             DateTime fullHour = dateTime.hourOfDay().roundFloorCopy();
             String value = valueNode.asText();
             
+            if(fullHour.isBefore(startDateTime)){
+                continue;
+            }
+            if(fullHour.isAfter(endDateTime)){
+                break;
+            }
+            
             if(currentHourDT != null){
                 
-                if( fullHour.isAfter(currentHourDT)){
-                    
-//                    if(Hours.hoursBetween(currentHourDT, fullHour).getHours() > 1){
+                if(fullHour.isAfter(currentHourDT)){
                         
-                        fillUpGap(currentHourDT, fullHour, value);
+                    fillUpGap(currentHourDT, fullHour, value);
                         
-//                    }else {                                    
-//                        eventList.add(new Event().setDateTime(fullHour).setValue(value));                                    
-//                    }
                     currentHourDT = fullHour;                                
                 }
                 
@@ -177,16 +184,30 @@ public class TimeSeriesAPIResponseHandler {
         end = end.hourOfDay().roundFloorCopy();
         
         Hours hours = Hours.hoursBetween(start, end);
-                
+        
         DateTime currentTime = start;
         
-        for (int i = 0; i < hours.getHours(); i++) {
-            currentTime = start.plusHours(i);
-            for (int j = 0; j <= 3; j++) {
-                int minutes = 15 * (j+1);
-                eventList.add(new Event().setDateTime(currentTime.plusMinutes(minutes)).setValue(value));
-//                eventList.add(new Event().setDateTime(start.plusHours(i)).setValue(value));
+        if(timeStepMultiplier.equals("900")){
+            
+            for (int i = 0; i < hours.getHours(); i++) {
+                currentTime = start.plusHours(i);
+                for (int j = 0; j <= 3; j++) {
+                    int minutes = 15 * (j+1);
+                    eventList.add(new Event().setDateTime(currentTime.plusMinutes(minutes)).setValue(value));
+//                    eventList.add(new Event().setDateTime(start.plusHours(i)).setValue(value));
+                }
             }
+            
+        }else if(timeStepMultiplier.equals("1800")){
+            
+            for (int i = 0; i < hours.getHours(); i++) {
+                currentTime = start.plusHours(i);
+                for (int j = 0; j <= 1; j++) {
+                    int minutes = 30 * (j+1);
+                    eventList.add(new Event().setDateTime(currentTime.plusMinutes(minutes)).setValue(value));
+                }
+            }
+            
         }
     }
     
@@ -256,5 +277,13 @@ public class TimeSeriesAPIResponseHandler {
 
     public void setEndTime(String endTime) {
         this.endTime = endTime;
+    }
+
+    public void setStartDateTime(DateTime startDateTime) {
+        this.startDateTime = startDateTime;
+    }
+
+    public void setEndDateTime(DateTime endDateTime) {
+        this.endDateTime = endDateTime;
     }
 }

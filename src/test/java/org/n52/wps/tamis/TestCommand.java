@@ -1,44 +1,25 @@
 package org.n52.wps.tamis;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 
-import org.junit.Test;
 import org.n52.wps.server.grass.util.JavaProcessStreamReader;
-import org.n52.wps.webapp.common.AbstractITClass;
 
-public class TalsimProcessTest extends AbstractITClass {
+public class TestCommand {
 
-    @Test
-    public void TestTalsimProcess() {
-
-        TalsimProcessHelper talsimProcessHelper = new TalsimProcessHelper();
-
-        String talsimFEWStoTALSIMDataPath = "d:/tmp/";
-        InputStream dischargeInputStream = getClass().getResourceAsStream("dischargeInput");
-        InputStream inflowInputStream = getClass().getResourceAsStream("inflowInput");
-        InputStream volumeInputStream = getClass().getResourceAsStream("volumeInput");
-
-        talsimProcessHelper.setDischargeInputStream(dischargeInputStream);
-        talsimProcessHelper.setInflowInputStream(inflowInputStream);
-        talsimProcessHelper.setTalsimFEWStoTALSIMDataPath(talsimFEWStoTALSIMDataPath);
-        talsimProcessHelper.setVolumeInputStream(volumeInputStream);
-
-        talsimProcessHelper.createTalsimInputs();
-
-    }
-
-    @Test
-    public void testExecuteTaskManager() throws IOException {
+    public static void main(String[] args) throws IOException {
 
         Runtime rt = Runtime.getRuntime();
 
+        String tmpDirString = "TMP=" + System.getProperty("java.io.tmpdir");
+        
         // just need to execute the task manager
-        Process proc = rt.exec("cmd.exe /c start command");
+//        Process proc = rt.exec("cmd.exe /c start");
+        Process proc = rt.exec("cmd.exe /c start", new String[]{tmpDirString}, new File("D:/Programme/talsim-ng/customers/wv/applications/TaskMgr"));
 
         PipedOutputStream pipedOut = new PipedOutputStream();
 

@@ -31,6 +31,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import n52.talsim_sos_converter.TalsimSosConverter;
+import nl.wldelft.fews.pi.TimeSeriesComplexType;
+import nl.wldelft.fews.pi.TimeSeriesDocument;
 
 @Algorithm(
         version = "0.01")
@@ -183,145 +185,16 @@ public class TalsimProcess extends AbstractAnnotatedAlgorithm {
         talsimProcessHelper.setVolumeInputStream(volumeInputStream);
         
         talsimProcessHelper.createTalsimInputs();
-        File outputFile = new File(talsimFEWStoTALSIMDataPath + File.separator + outputFilename);
-        
-//        File dischargeInputFile = new File(talsimFEWStoTALSIMDataPath + File.separator + dischargeFilename);
-//        File volumeInputFile = new File(talsimFEWStoTALSIMDataPath + File.separator + volumeFilename);
-//        File inflowInputFile = new File(talsimFEWStoTALSIMDataPath + File.separator + inflowFilename);
-//
-//        // create discharge input for Talsim
-//        TimeSeriesAPIResponseHandler dischargeTimeSeriesAPIResponseHandler = null;
-//        FileOutputStream dischargeFileOutputStream = null;
-//        
-//        try {
-//
-//            dischargeFileOutputStream = new FileOutputStream(dischargeInputFile);
-//
-//            FEWObject dischargeFEWObject = new FEWObject().setType(FEWObject.Types.instantaneous.toString())
-//                    .setLocationId(FEWObject.LocationID.TBEV.toString())
-//                    .setParameterId(FEWObject.ParameterId.QA1.getParameterID()).setUnits(FEWObject.Unit.m3persecond.getUnitForTalSIM());
-//            try {
-//                
-//                dischargeTimeSeriesAPIResponseHandler = new TimeSeriesAPIResponseHandler().setInputStream(Util.connectWithBasicAuth(dischargeInput, userName, password))
-//                        .setOutputStream(dischargeFileOutputStream).setFEWObject(dischargeFEWObject).prepareFEWObject();
-//                
-//            } catch (Exception e) {
-//                LOGGER.error("Could not fetch timeseries from: " + dischargeInput, e);
-//            }
-//
-//        } catch (Exception e) {
-//            throw new RuntimeException("Could not create Talsim input file for discharge.");
-//        }
-//        
-//        DateTime actualStartInstant = TimeUtils.getDateTime(dischargeTimeSeriesAPIResponseHandler.getStartDate(), dischargeTimeSeriesAPIResponseHandler.getStartTime());
-//        DateTime actualEndInstant = TimeUtils.getDateTime(dischargeTimeSeriesAPIResponseHandler.getEndDate(), dischargeTimeSeriesAPIResponseHandler.getEndTime());
-//        
-//        // create volume input for Talsim
-//        TimeSeriesAPIResponseHandler volumeTimeSeriesAPIResponseHandler = null;
-//        FileOutputStream volumeFileOutputStream = null;
-//        
-//        try {
-//
-//            volumeFileOutputStream = new FileOutputStream(volumeInputFile);
-//
-//            FEWObject volumeFEWObject = new FEWObject().setType(FEWObject.Types.instantaneous.toString())
-//                    .setLocationId(FEWObject.LocationID.TBEV.toString())
-//                    .setParameterId(FEWObject.ParameterId.Volumen.getParameterID()).setUnits(FEWObject.Unit.millionm3.getUnitForTalSIM());
-//            try {
-//                
-//                volumeTimeSeriesAPIResponseHandler = new TimeSeriesAPIResponseHandler().setInputStream(Util.connectWithBasicAuth(volumeInput, userName, password))
-//                        .setOutputStream(volumeFileOutputStream).setFEWObject(volumeFEWObject).prepareFEWObject();
-//                
-//            } catch (Exception e) {
-//                LOGGER.error("Could not fetch timeseries from: " + volumeInput, e);
-//            }
-//
-//        } catch (Exception e) {
-//            throw new RuntimeException("Could not create Talsim input file for volume.");
-//        }
-//
-//        DateTime volumeStartInstant = TimeUtils.getDateTime(volumeTimeSeriesAPIResponseHandler.getStartDate(), volumeTimeSeriesAPIResponseHandler.getStartTime());
-//        DateTime volumeEndInstant = TimeUtils.getDateTime(volumeTimeSeriesAPIResponseHandler.getEndDate(), volumeTimeSeriesAPIResponseHandler.getEndTime());
-//
-//        if(volumeStartInstant.isAfter(actualStartInstant)){
-//            actualStartInstant = volumeStartInstant;
-//        }
-//        if(volumeEndInstant.isBefore(actualEndInstant)){
-//            actualEndInstant = volumeEndInstant;
-//        }
-//        
-//        // create inflow input for Talsim
-//        TimeSeriesAPIResponseHandler inflowTimeSeriesAPIResponseHandler = null;
-//        FileOutputStream inflowFileOutputStream = null;
-//        
-//        try {
-//
-//            inflowFileOutputStream = new FileOutputStream(inflowInputFile);
-//
-//            FEWObject inflowFEWObject = new FEWObject().setType(FEWObject.Types.instantaneous.toString())
-//                    .setLocationId(FEWObject.LocationID.EBEV.toString())
-//                    .setParameterId(FEWObject.ParameterId.Zufluss.getParameterID()).setUnits(FEWObject.Unit.m3persecond.getUnitForTalSIM());
-//            try {
-//                
-//                inflowTimeSeriesAPIResponseHandler = new TimeSeriesAPIResponseHandler().setInputStream(Util.connectWithBasicAuth(inflowInput, userName, password))
-//                        .setOutputStream(inflowFileOutputStream).setFEWObject(inflowFEWObject).prepareFEWObject();
-//                
-//            } catch (Exception e) {
-//                LOGGER.error("Could not fetch timeseries from: " + inflowInput, e);
-//            }
-//
-//        } catch (Exception e) {
-//            throw new RuntimeException("Could not create Talsim input file for inflow.");
-//        }
-//        
-//        DateTime inflowStartInstant = TimeUtils.getDateTime(inflowTimeSeriesAPIResponseHandler.getStartDate(), inflowTimeSeriesAPIResponseHandler.getStartTime());
-//        DateTime inflowEndInstant = TimeUtils.getDateTime(inflowTimeSeriesAPIResponseHandler.getEndDate(), inflowTimeSeriesAPIResponseHandler.getEndTime());
-//
-//        if(inflowStartInstant.isAfter(actualStartInstant)){
-//            actualStartInstant = inflowStartInstant;
-//        }
-//        if(inflowEndInstant.isBefore(actualEndInstant)){
-//            actualEndInstant = inflowEndInstant;
-//        }
-//        
-//        String[] actualStartDateTimeStringArray = TimeUtils.getDateAndTime(actualStartInstant);
-//        
-//        String actualStartDate = actualStartDateTimeStringArray[0];
-//        String actualStartTime = actualStartDateTimeStringArray[1];
-//        
-//        String[] actualEndDateTimeStringArray = TimeUtils.getDateAndTime(actualEndInstant);
-//        
-//        String actualEndDate = actualEndDateTimeStringArray[0];
-//        String actualEndTime = actualEndDateTimeStringArray[1];
-//        
-//        dischargeTimeSeriesAPIResponseHandler.setStartDate(actualStartDate);
-//        dischargeTimeSeriesAPIResponseHandler.setStartTime(actualStartTime);
-//        volumeTimeSeriesAPIResponseHandler.setStartDate(actualStartDate);
-//        volumeTimeSeriesAPIResponseHandler.setStartTime(actualStartTime);
-//        inflowTimeSeriesAPIResponseHandler.setStartDate(actualStartDate);
-//        inflowTimeSeriesAPIResponseHandler.setStartTime(actualStartTime);
-//        
-//        dischargeTimeSeriesAPIResponseHandler.setEndDate(actualEndDate);
-//        dischargeTimeSeriesAPIResponseHandler.setEndTime(actualEndTime);
-//        volumeTimeSeriesAPIResponseHandler.setEndDate(actualEndDate);
-//        volumeTimeSeriesAPIResponseHandler.setEndTime(actualEndTime);
-//        inflowTimeSeriesAPIResponseHandler.setEndDate(actualEndDate);
-//        inflowTimeSeriesAPIResponseHandler.setEndTime(actualEndTime);
-//        
-//        dischargeTimeSeriesAPIResponseHandler.fillEventList();
-//        volumeTimeSeriesAPIResponseHandler.fillEventList();
-//        inflowTimeSeriesAPIResponseHandler.fillEventList();
-//        
-//        dischargeTimeSeriesAPIResponseHandler.writeFEWObject();
-//        volumeTimeSeriesAPIResponseHandler.writeFEWObject();
-//        inflowTimeSeriesAPIResponseHandler.writeFEWObject();
+        File outputFile = new File(talsimTALSIMtoFEWSDataPath + File.separator + outputFilename);
         
         Runtime rt = Runtime.getRuntime();
+
+        String tmpDirString = "TMP=" + System.getProperty("java.io.tmpdir");
 
         try {
 
             // just need to execute the task manager
-            Process proc = rt.exec(talsimTaskManagerPath);
+            Process proc = rt.exec(talsimTaskManagerPath, new String[]{tmpDirString});
 
             PipedOutputStream pipedOut = new PipedOutputStream();
 
@@ -361,12 +234,39 @@ public class TalsimProcess extends AbstractAnnotatedAlgorithm {
                 // TODO create Observations from Talsim output
                 // Create file inputstream from output file
                 InputStream outputFileInputStream = new FileInputStream(outputFile);
-
-                TalsimSosConverter talsimSosConverter = new TalsimSosConverter();
                 
-                talsimSosConverter.insertOutputToSOS(outputFileInputStream, sosURL);
+                TalsimToTimeseries talsimToTimeseries = new TalsimToTimeseries();
+                
+                TimeSeriesDocument timeSeriesDocument = TimeSeriesDocument.Factory.parse(outputFileInputStream);
+
+                for (TimeSeriesComplexType seriesArray : timeSeriesDocument.getTimeSeries().getSeriesArray()) {
+                    
+                    String parameterId = seriesArray.getHeader().getParameterId();
+                    
+                    String timeseriesJSONString = talsimToTimeseries.createTimeseriesJSONFromTimeseriesXML(seriesArray);
+                    
+                    switch (parameterId) {
+                    case "1ZU":
+                        inflowOutput = timeseriesJSONString;
+                        break;
+                    case "VOL":
+                        volumeOutput = timeseriesJSONString;
+                        break;
+                    case "WSP":
+                        waterlevelOutput = timeseriesJSONString;
+                        break;
+                    case "QA1":
+                        dischargeOutput = timeseriesJSONString;
+                        break;
+                    case "QH1":
+                        spillwayDischargeOutput = timeseriesJSONString;
+                        break;
+                    default:
+                        break;
+                    }
+                }
             } catch (Exception e) {
-                LOGGER.error("Could not store TALSIM output ijn transactional SOS.", e);
+                LOGGER.error("Could create TimeSeries from Talsim outputs.", e);
             }
 
         } catch (IOException e) {

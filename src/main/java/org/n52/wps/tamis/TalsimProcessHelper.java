@@ -137,17 +137,24 @@ public class TalsimProcessHelper {
         String actualEndDate = actualEndDateTimeStringArray[0];
         String actualEndTime = actualEndDateTimeStringArray[1];
         
+        dischargeTimeSeriesAPIResponseHandler.setStartDateTime(actualStartInstant);
+        dischargeTimeSeriesAPIResponseHandler.setEndDateTime(actualEndInstant);
         dischargeTimeSeriesAPIResponseHandler.setStartDate(actualStartDate);
         dischargeTimeSeriesAPIResponseHandler.setStartTime(actualStartTime);
-        volumeTimeSeriesAPIResponseHandler.setStartDate(actualStartDate);
-        volumeTimeSeriesAPIResponseHandler.setStartTime(actualStartTime);
-        inflowTimeSeriesAPIResponseHandler.setStartDate(actualStartDate);
-        inflowTimeSeriesAPIResponseHandler.setStartTime(actualStartTime);
-        
         dischargeTimeSeriesAPIResponseHandler.setEndDate(actualEndDate);
         dischargeTimeSeriesAPIResponseHandler.setEndTime(actualEndTime);
+        
+        volumeTimeSeriesAPIResponseHandler.setStartDateTime(actualStartInstant);
+        volumeTimeSeriesAPIResponseHandler.setEndDateTime(actualEndInstant);
+        volumeTimeSeriesAPIResponseHandler.setStartDate(actualStartDate);
+        volumeTimeSeriesAPIResponseHandler.setStartTime(actualStartTime);
         volumeTimeSeriesAPIResponseHandler.setEndDate(actualEndDate);
         volumeTimeSeriesAPIResponseHandler.setEndTime(actualEndTime);
+        
+        inflowTimeSeriesAPIResponseHandler.setStartDateTime(actualStartInstant);
+        inflowTimeSeriesAPIResponseHandler.setEndDateTime(actualEndInstant);
+        inflowTimeSeriesAPIResponseHandler.setStartDate(actualStartDate);
+        inflowTimeSeriesAPIResponseHandler.setStartTime(actualStartTime);        
         inflowTimeSeriesAPIResponseHandler.setEndDate(actualEndDate);
         inflowTimeSeriesAPIResponseHandler.setEndTime(actualEndTime);
         

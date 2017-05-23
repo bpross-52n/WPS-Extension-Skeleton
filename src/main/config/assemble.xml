@@ -18,7 +18,7 @@
 				<include>org.n52.sensorweb:52n-xml-sweCommon-v20</include>
 				<include>org.n52.sensorweb:52n-xml-sampling-v20</include>
 				<include>org.n52.sensorweb.sos:api</include>
-<!-- 				<include>org.n52.sensorweb.sos:coding-ows-v110</include> -->
+				<include>org.n52.geoprocessing:pi-timeseries-xml-beans</include>
 				<include>org.n52.sensorweb.sos:coding-sos-v20</include>
 				<include>org.n52.sensorweb.sos:coding-wml-v20</include>
 				<include>commons-logging:commons-logging</include>
