@@ -3,7 +3,6 @@ package org.n52.wps.tamis;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -12,15 +11,15 @@ import java.io.PipedOutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
-import java.time.Instant;
 import java.util.Properties;
 
-import org.joda.time.DateTime;
 import org.n52.wps.algorithm.annotation.Algorithm;
+import org.n52.wps.algorithm.annotation.ComplexDataOutput;
 import org.n52.wps.algorithm.annotation.Execute;
 import org.n52.wps.algorithm.annotation.LiteralDataInput;
 import org.n52.wps.algorithm.annotation.LiteralDataOutput;
 import org.n52.wps.commons.WPSConfig;
+import org.n52.wps.io.data.binding.complex.PlainStringBinding;
 import org.n52.wps.io.data.binding.literal.LiteralStringBinding;
 import org.n52.wps.server.AbstractAnnotatedAlgorithm;
 import org.n52.wps.server.grass.util.JavaProcessStreamReader;
@@ -30,7 +29,6 @@ import org.n52.wps.webapp.api.ConfigurationModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import n52.talsim_sos_converter.TalsimSosConverter;
 import nl.wldelft.fews.pi.TimeSeriesComplexType;
 import nl.wldelft.fews.pi.TimeSeriesDocument;
 
@@ -70,32 +68,32 @@ public class TalsimProcess extends AbstractAnnotatedAlgorithm {
 
     private String password;
 
-    @LiteralDataOutput(
-            identifier = "spillway-discharge-output")
+    @ComplexDataOutput(
+            identifier = "spillway-discharge-output", binding=PlainStringBinding.class)
     public String getSpillwayDischargeOutput() {
         return spillwayDischargeOutput;
     }
 
-    @LiteralDataOutput(
-            identifier = "waterlevel-output")
+    @ComplexDataOutput(
+            identifier = "waterlevel-output", binding=PlainStringBinding.class)
     public String getWaterLevelOutput() {
         return waterlevelOutput;
     }
 
-    @LiteralDataOutput(
-            identifier = "discharge-output")
+    @ComplexDataOutput(
+            identifier = "discharge-output", binding=PlainStringBinding.class)
     public String getDischargeOutput() {
         return dischargeOutput;
     }
 
-    @LiteralDataOutput(
-            identifier = "inflow-output")
+    @ComplexDataOutput(
+            identifier = "inflow-output", binding=PlainStringBinding.class)
     public String getInflowOutput() {
         return inflowOutput;
     }
 
-    @LiteralDataOutput(
-            identifier = "volume-output")
+    @ComplexDataOutput(
+            identifier = "volume-output", binding=PlainStringBinding.class)
     public String getVolumeOutput() {
         return volumeOutput;
     }
@@ -189,12 +187,13 @@ public class TalsimProcess extends AbstractAnnotatedAlgorithm {
         
         Runtime rt = Runtime.getRuntime();
 
-        String tmpDirString = "TMP=" + System.getProperty("java.io.tmpdir");
-
         try {
 
             // just need to execute the task manager
-            Process proc = rt.exec(talsimTaskManagerPath, new String[]{tmpDirString});
+
+//          String tmpDirString = "TMP=" + System.getProperty("java.io.tmpdir");
+//            Process proc = rt.exec(talsimTaskManagerPath, new String[]{tmpDirString});
+            Process proc = rt.exec(talsimTaskManagerPath);
 
             PipedOutputStream pipedOut = new PipedOutputStream();
 
