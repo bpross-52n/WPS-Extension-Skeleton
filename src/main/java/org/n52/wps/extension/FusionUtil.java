@@ -5,9 +5,16 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.geotools.feature.FeatureCollection;
+import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
+import org.opengis.feature.Feature;
+import org.opengis.feature.Property;
+import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.feature.type.AttributeDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,8 +25,10 @@ public class FusionUtil {
     public static String[] attributeNames = new String[] { "Geoeffnete_Beherbergungsbetriebe", "Angebotene_Gaestebetten",
             "Gaesteuebernachtungen", "Gaesteankuenfte" };
 
-    public static Map<Integer, DBEntry> createMap(String pathToCSVFile) throws IOException {
-
+    public static Map<Integer, DBEntry> createMap(String year, String code) throws IOException {
+        
+        String pathToCSVFile = System.getProperty("user.home") + File.separator + "unece-workshop" + File.separator + year + File.separator + code + ".csv";
+        
         Map<Integer, DBEntry> result = new HashMap<>();
 
         BufferedReader bufferedReader = new BufferedReader(new FileReader(new File(pathToCSVFile)));
@@ -40,6 +49,8 @@ public class FusionUtil {
             }
         }
 
+        logger.info("Size of map: " + result.size());
+        
         bufferedReader.close();
 
         return result;
@@ -55,7 +66,7 @@ public class FusionUtil {
 
     private static DBEntry createDBEntry(String line) {
         String[] stringArray = line.split(";");
-        if (stringArray.length == 8 && stringArray[0].equals("2015")) {
+        if (stringArray.length == 7) {
             int dg; 
             
             try {
@@ -67,9 +78,9 @@ public class FusionUtil {
             
             if(dg > 1000 && dg < 17000){
                 
-                if(stringArray[3].equals("Insgesamt")){
+//                if(stringArray[3].equals("Insgesamt")){
                     return createDBEntry(dg,stringArray);
-                }
+//                }
                 
             }
         }
@@ -77,7 +88,40 @@ public class FusionUtil {
     }
     
     private static DBEntry createDBEntry(int dg, String[] stringArray) {        
-        return new DBEntry(dg, stringArray[2], Arrays.copyOfRange(stringArray, 4, 8));        
+        return new DBEntry(dg, stringArray[2], Arrays.copyOfRange(stringArray, 3, 7));
     }
 
+    public static SimpleFeatureType createSimpleFeatureTypeWithAdditionalProperties(FeatureCollection<?, ?> featureCollection){
+        
+        Feature firstFeature = featureCollection.features().next();
+
+        Collection<Property> originalProperties = firstFeature.getProperties();
+        
+        SimpleFeatureTypeBuilder simpleFeatureTypeBuilder = new SimpleFeatureTypeBuilder();
+
+        for (Property property : originalProperties) {
+            if(property.getName().getLocalPart().equals("boundedBy")){
+                continue;
+            }
+            simpleFeatureTypeBuilder.add((AttributeDescriptor) property.getDescriptor());
+        }
+
+        simpleFeatureTypeBuilder.add(FusionUtil.attributeNames[0], Long.class);
+        simpleFeatureTypeBuilder.add(FusionUtil.attributeNames[1], Long.class);
+        simpleFeatureTypeBuilder.add(FusionUtil.attributeNames[2], Long.class);
+        simpleFeatureTypeBuilder.add(FusionUtil.attributeNames[3], Long.class);
+        
+        simpleFeatureTypeBuilder
+                .setDefaultGeometry(firstFeature.getDefaultGeometryProperty().getName().getLocalPart());
+
+        simpleFeatureTypeBuilder.setName(featureCollection.getSchema().getName());
+
+        simpleFeatureTypeBuilder.setCRS(featureCollection.getBounds().getCoordinateReferenceSystem());
+        
+        SimpleFeatureType featureType = simpleFeatureTypeBuilder.buildFeatureType();
+        
+        return featureType;
+        
+    }
+    
 }
