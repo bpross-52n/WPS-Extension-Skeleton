@@ -1,0 +1,83 @@
+package org.n52.wps.extension;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public class FusionUtil {
+
+    private static final Logger logger = LoggerFactory.getLogger(FusionUtil.class);
+    
+    public static String[] attributeNames = new String[] { "Geoeffnete_Beherbergungsbetriebe", "Angebotene_Gaestebetten",
+            "Gaesteuebernachtungen", "Gaesteankuenfte" };
+
+    public static Map<Integer, DBEntry> createMap(String pathToCSVFile) throws IOException {
+
+        Map<Integer, DBEntry> result = new HashMap<>();
+
+        BufferedReader bufferedReader = new BufferedReader(new FileReader(new File(pathToCSVFile)));
+
+        String line = null;
+
+        while ((line = bufferedReader.readLine()) != null) {
+
+            // if(attributeNames == null){
+            // getAttributeNames(line);
+            // continue;
+            // }
+
+            DBEntry entry = createDBEntry(line);
+
+            if (entry != null) {
+                result.put(entry.getDg(), entry);
+            }
+        }
+
+        bufferedReader.close();
+
+        return result;
+    }
+
+    // private static void getAttributeNames(String line) {
+    // String[] stringArray = line.split(";");
+    // if(stringArray.length == 8 && !stringArray[4].equals("")){
+    //
+    // }
+    //
+    // }
+
+    private static DBEntry createDBEntry(String line) {
+        String[] stringArray = line.split(";");
+        if (stringArray.length == 8 && stringArray[0].equals("2015")) {
+            int dg; 
+            
+            try {
+                dg = Integer.parseInt(stringArray[1]);
+            } catch (Exception e) {
+                logger.info("Could not parse Integer:" + stringArray[1]);
+                return null;
+            }
+            
+            if(dg > 1000 && dg < 17000){
+                
+                if(stringArray[3].equals("Insgesamt")){
+                    return createDBEntry(dg,stringArray);
+                }
+                
+            }
+        }
+        return null;
+    }
+    
+    private static DBEntry createDBEntry(int dg, String[] stringArray) {        
+        return new DBEntry(dg, stringArray[2], Arrays.copyOfRange(stringArray, 4, 8));        
+    }
+
+}
