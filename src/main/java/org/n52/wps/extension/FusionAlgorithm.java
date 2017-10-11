@@ -143,6 +143,13 @@ public class FusionAlgorithm extends AbstractAnnotatedAlgorithm {
 
             DBEntry dbEntry = map.get(Integer.parseInt((String) rs));
             
+            if(dbEntry == null){
+                LOGGER.info("Found no match in statistics, for RS: " + rs);
+                LOGGER.info("Kreis-Name: " + feature.getProperty("GEN"));
+                simpleFeatureBuilder = new SimpleFeatureBuilder(featureType);
+                continue;
+            }
+            
             simpleFeatureBuilder.addAll(dbEntry.getAttributeArray());
 
             SimpleFeature newFeature = simpleFeatureBuilder.buildFeature(feature.getIdentifier().getID());
