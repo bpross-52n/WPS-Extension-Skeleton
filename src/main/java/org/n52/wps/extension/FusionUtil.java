@@ -29,6 +29,8 @@ public class FusionUtil {
         
         String pathToCSVFile = System.getProperty("user.home") + File.separator + "unece-workshop" + File.separator + year + File.separator + code + ".csv";
         
+        logger.info("Path to csv file: " + pathToCSVFile);
+        
         Map<Integer, DBEntry> result = new HashMap<>();
 
         BufferedReader bufferedReader = new BufferedReader(new FileReader(new File(pathToCSVFile)));

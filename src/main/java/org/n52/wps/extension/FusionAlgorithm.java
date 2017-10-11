@@ -125,7 +125,13 @@ public class FusionAlgorithm extends AbstractAnnotatedAlgorithm {
             while (propertyIterator.hasNext()) {
                 Property property = (Property) propertyIterator.next();
                 if(!property.getName().getLocalPart().equals("boundedBy")){
-                    newProperties.add(property.getValue());
+                    
+                    if(property.getValue() instanceof String && property.getName().getLocalPart().equals("GEN")){
+                        String valueString = (String)property.getValue();
+                        newProperties.add(replaceSpecialCharacters(valueString));
+                    }else{                        
+                        newProperties.add(property.getValue());
+                    }
                 }
             }
             
@@ -149,6 +155,16 @@ public class FusionAlgorithm extends AbstractAnnotatedAlgorithm {
         LOGGER.info("FeatureList size: " + featureList.size());
 
         result = new ListFeatureCollection(featureType, featureList);
+    }
+
+    private Object replaceSpecialCharacters(String valueString) {
+        
+        valueString = valueString.replace("ü", "ue");
+        valueString = valueString.replace("ä", "ae");
+        valueString = valueString.replace("ö", "oe");
+        valueString = valueString.replace("ß", "ss");
+        
+        return valueString;
     }
 
 }
