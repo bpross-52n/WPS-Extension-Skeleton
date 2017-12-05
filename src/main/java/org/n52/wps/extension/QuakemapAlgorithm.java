@@ -22,8 +22,6 @@
  */
 package org.n52.wps.extension;
 
-import static org.n52.wps.server.AbstractAnnotatedAlgorithm.LOGGER;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -31,8 +29,8 @@ import java.util.UUID;
 
 import javax.xml.namespace.QName;
 
+import org.geotools.data.simple.SimpleFeatureIterator;
 import org.geotools.feature.FeatureCollection;
-import org.geotools.feature.FeatureIterator;
 import org.n52.wps.algorithm.annotation.Algorithm;
 import org.n52.wps.algorithm.annotation.ComplexDataInput;
 import org.n52.wps.algorithm.annotation.ComplexDataOutput;
@@ -57,7 +55,7 @@ import com.vividsolutions.jts.geom.Geometry;
  *
  */
 @Algorithm(
-        version = "1.0", abstrakt = "Produce a simple quakemap based on coordinate and magnitude",
+        version = "1.0", abstrakt = "Produces a simple quakemap based on coordinate and magnitude",
         title = "Quakemap algoritm", statusSupported = false, storeSupported = false)
 public class QuakemapAlgorithm extends AbstractAnnotatedAlgorithm {
 
@@ -80,18 +78,17 @@ public class QuakemapAlgorithm extends AbstractAnnotatedAlgorithm {
     @Execute
     public void produceQuakemap() {
 
-        double i = 0;
-        int totalNumberOfFeatures = input.size();
+        double i = 1;
         String uuid = UUID.randomUUID().toString();
         List<SimpleFeature> featureList = new ArrayList<>();
         SimpleFeatureType featureType = null;
-        LOGGER.debug("");
-        for (FeatureIterator ia = input.features(); ia.hasNext();) {
+
+        for (SimpleFeatureIterator ia = (SimpleFeatureIterator)input.features(); ia.hasNext();) {
 
             /**
              * ******************
              */
-            SimpleFeature feature = (SimpleFeature) ia.next();
+            SimpleFeature feature = ia.next();
             
             Property magnitudeProperty = feature.getProperty("magnitude");
             
@@ -103,34 +100,67 @@ public class QuakemapAlgorithm extends AbstractAnnotatedAlgorithm {
                 
                 int randomInt = new Random().nextInt(9);
                 
-                magnitude = randomInt == 0 ? 1 : randomInt;
+                magnitude = randomInt == 0 ? 2 : randomInt;
+                
+                LOGGER.warn("No Magnitude property found. Returning input features.");
+                output = input;
+                return;
             }
             
-            Geometry geometry = (Geometry) feature.getDefaultGeometry();
-            Geometry geometryBuffered = runBuffer(geometry, width);
-
-            if (i == 1) {
-                CoordinateReferenceSystem crs = feature.getFeatureType().getCoordinateReferenceSystem();
-                if (geometry.getUserData() instanceof CoordinateReferenceSystem) {
-                    crs = ((CoordinateReferenceSystem) geometry.getUserData());
-                }
-                featureType = GTHelper.createFeatureType(feature.getProperties(), geometryBuffered, uuid, crs);
-                QName qname = GTHelper.createGML3SchemaForFeatureType(featureType);
-                SchemaRepository.registerSchemaLocation(qname.getNamespaceURI(), qname.getLocalPart());
-
+            double width = 0.01;
+            
+            double floor = 4.0;
+            
+            if(magnitude <= 5.0){
+                floor = 1;
+            }else if((5.0 < magnitude) && (magnitude <= 7.0)){
+                floor = 3;
             }
+            
+            for (double counter = magnitude; counter >= floor; counter--) {
+                
+                Geometry geometry = (Geometry) feature.getDefaultGeometry();
+                Geometry geometryBuffered = runBuffer(geometry, width);
 
-            if (geometryBuffered != null) {
-                SimpleFeature createdFeature = (SimpleFeature) GTHelper.createFeature("ID" + new Double(i).intValue(),
-                        geometryBuffered, (SimpleFeatureType) featureType, feature.getProperties());
-                feature.setDefaultGeometry(geometryBuffered);
-                featureList.add(createdFeature);
-            } else {
-                LOGGER.warn("GeometryCollections are not supported, or result null. Original dataset will be returned");
+                if (i == 1) {
+                    CoordinateReferenceSystem crs = feature.getFeatureType().getCoordinateReferenceSystem();
+                    if (geometry.getUserData() instanceof CoordinateReferenceSystem) {
+                        crs = ((CoordinateReferenceSystem) geometry.getUserData());
+                    }
+                    featureType = GTHelper.createFeatureType(feature.getProperties(), geometryBuffered, uuid, crs);
+                    QName qname = GTHelper.createGML3SchemaForFeatureType(featureType);
+                    SchemaRepository.registerSchemaLocation(qname.getNamespaceURI(), qname.getLocalPart());
+
+                }
+
+                if (geometryBuffered != null) {
+                    SimpleFeature createdFeature = (SimpleFeature) GTHelper.createFeature("ID" + new Double(i).intValue(),
+                            geometryBuffered, (SimpleFeatureType) featureType, feature.getProperties());
+                    feature.setDefaultGeometry(geometryBuffered);
+                    featureList.add(createdFeature);
+                } else {
+                    LOGGER.warn("GeometryCollections are not supported, or result null. Original dataset will be returned");
+                }
+                
+                width = width * 4;
+                
+                LOGGER.info("Magnitude: " + counter + ", width " + width);
             }
         }
         output = GTHelper.createSimpleFeatureCollectionFromSimpleFeatureList(featureList);
 
+    }
+
+    private Geometry runBuffer(Geometry a, double width) {
+        Geometry buffered = null;
+
+        try {
+            buffered = a.buffer(width);
+            return buffered;
+        } catch (RuntimeException ex) {
+            // simply eat exceptions and report them by returning null
+        }
+        return null;
     }
 
 }
