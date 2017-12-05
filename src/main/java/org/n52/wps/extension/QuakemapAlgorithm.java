@@ -23,12 +23,15 @@
 package org.n52.wps.extension;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
 
 import javax.xml.namespace.QName;
 
+import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.data.simple.SimpleFeatureIterator;
 import org.geotools.feature.FeatureCollection;
 import org.n52.wps.algorithm.annotation.Algorithm;
@@ -37,8 +40,11 @@ import org.n52.wps.algorithm.annotation.ComplexDataOutput;
 import org.n52.wps.algorithm.annotation.Execute;
 import org.n52.wps.io.GTHelper;
 import org.n52.wps.io.SchemaRepository;
+import org.n52.wps.io.data.IData;
 import org.n52.wps.io.data.binding.complex.GTVectorDataBinding;
+import org.n52.wps.server.AbstractAlgorithm;
 import org.n52.wps.server.AbstractAnnotatedAlgorithm;
+import org.n52.wps.server.ExceptionReport;
 import org.opengis.feature.Property;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -54,30 +60,36 @@ import com.vividsolutions.jts.geom.Geometry;
  * @author Benjamin Pross
  *
  */
-@Algorithm(
-        version = "1.0", abstrakt = "Produces a simple quakemap based on coordinate and magnitude",
-        title = "Quakemap algoritm", statusSupported = false, storeSupported = false)
-public class QuakemapAlgorithm extends AbstractAnnotatedAlgorithm {
+public class QuakemapAlgorithm extends AbstractAlgorithm {
 
-    private FeatureCollection output;
+    private SimpleFeatureCollection output;
 
     private static Logger LOGGER = LoggerFactory.getLogger(QuakemapAlgorithm.class);
 
-    @ComplexDataInput(
-            identifier = "input", title = "earthquake information",
-            abstrakt = "Coordinate and magnitude of an earthquake", binding = GTVectorDataBinding.class)
-    public FeatureCollection input;
-
-    @ComplexDataOutput(
-            identifier = "output", title = "Buffers with decreasing magnitudes", abstrakt = "Buffers with decreasing magnitudes",
-            binding = GTVectorDataBinding.class)
-    public FeatureCollection getOutput() {
-        return this.output;
-    }
+    public SimpleFeatureCollection input;
 
     @Execute
     public void produceQuakemap() {
 
+    }
+
+    private Geometry runBuffer(Geometry a, double width) {
+        Geometry buffered = null;
+
+        try {
+            buffered = a.buffer(width);
+            return buffered;
+        } catch (RuntimeException ex) {
+            // simply eat exceptions and report them by returning null
+        }
+        return null;
+    }
+
+    @Override
+    public Map<String, IData> run(Map<String, List<IData>> inputData) throws ExceptionReport {
+        
+        input = (SimpleFeatureCollection) ((GTVectorDataBinding)inputData.get("input").get(0)).getPayload();
+        
         double i = 1;
         String uuid = UUID.randomUUID().toString();
         List<SimpleFeature> featureList = new ArrayList<>();
@@ -104,7 +116,7 @@ public class QuakemapAlgorithm extends AbstractAnnotatedAlgorithm {
                 
                 LOGGER.warn("No Magnitude property found. Returning input features.");
                 output = input;
-                return;
+                return null;
             }
             
             double width = 0.01;
@@ -148,19 +160,27 @@ public class QuakemapAlgorithm extends AbstractAnnotatedAlgorithm {
             }
         }
         output = GTHelper.createSimpleFeatureCollectionFromSimpleFeatureList(featureList);
-
+        
+        Map<String, IData> result = new HashMap<String, IData>(1);
+        
+        result.put("output", new GTVectorDataBinding(output));
+        
+        return result;
     }
 
-    private Geometry runBuffer(Geometry a, double width) {
-        Geometry buffered = null;
-
-        try {
-            buffered = a.buffer(width);
-            return buffered;
-        } catch (RuntimeException ex) {
-            // simply eat exceptions and report them by returning null
-        }
+    @Override
+    public List<String> getErrors() {
         return null;
+    }
+
+    @Override
+    public Class<?> getInputDataType(String id) {
+        return GTVectorDataBinding.class;
+    }
+
+    @Override
+    public Class<?> getOutputDataType(String id) {
+        return GTVectorDataBinding.class;
     }
 
 }

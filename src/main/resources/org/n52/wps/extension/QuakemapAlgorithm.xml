@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wps:ProcessDescriptions xmlns:wps="http://www.opengis.net/wps/1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ows="http://www.opengis.net/ows/1.1" xsi:schemaLocation="http://www.opengis.net/wps/1.0.0 http://schemas.opengis.net/wps/1.0.0/wpsDescribeProcess_response.xsd" xml:lang="en-US" service="WPS" version="1.0.0">
+  <ProcessDescription statusSupported="true" storeSupported="true" wps:processVersion="1.1">
+    <ows:Identifier>org.n52.wps.extension.QuakemapAlgorithm</ows:Identifier>
+    <ows:Title>Quakemap algorithm</ows:Title>
+    <ows:Abstract>Produces a simple quakemap based on coordinate and magnitude</ows:Abstract>
+    <DataInputs>
+      <Input minOccurs="1" maxOccurs="1">
+        <ows:Identifier>input</ows:Identifier>
+        <ows:Title>earthquake information</ows:Title>
+        <ows:Abstract>Coordinate and magnitude of an earthquake</ows:Abstract>
+        <ComplexData>
+          <Default>
+            <Format>
+              <MimeType>application/vnd.geo+json</MimeType>
+            </Format>  
+          </Default>
+          <Supported>
+            <Format>
+              <MimeType>text/xml</MimeType>
+              <Schema>http://quakeml.org/schema/xsd/QuakeML-1.2.xsd</Schema>
+            </Format>
+            <Format>
+              <MimeType>application/vnd.geo+json</MimeType>
+            </Format>            
+          </Supported>
+        </ComplexData>
+      </Input>
+    </DataInputs>
+    <ProcessOutputs>
+      <Output>
+        <ows:Identifier>output</ows:Identifier>
+        <ows:Title>Buffers with decreasing magnitudes</ows:Title>
+        <ows:Abstract>Buffers with decreasing magnitudes</ows:Abstract>
+        <ComplexOutput>
+          <Default>
+            <Format>
+              <MimeType>application/vnd.geo+json</MimeType>
+            </Format>
+          </Default>
+          <Supported>
+            <Format>
+              <MimeType>text/xml</MimeType>
+              <Schema>http://earthquake.usgs.gov/eqcenter/shakemap/xml/schemas/shakemap.xsd</Schema>
+            </Format>
+            <Format>
+              <MimeType>application/vnd.geo+json</MimeType>
+            </Format>
+          </Supported>
+        </ComplexOutput>
+      </Output>
+    </ProcessOutputs>
+  </ProcessDescription>
+</wps:ProcessDescriptions>
