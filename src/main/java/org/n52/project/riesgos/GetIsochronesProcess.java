@@ -32,6 +32,7 @@ import javax.xml.namespace.QName;
 
 import org.geotools.data.collection.ListFeatureCollection;
 import org.geotools.feature.FeatureCollection;
+import org.geotools.feature.NameImpl;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.n52.project.riesgos.earthquakesimulation.EarthquakeSimulationDBConnector;
@@ -46,6 +47,7 @@ import org.n52.wps.server.AbstractAnnotatedAlgorithm;
 import org.opengis.feature.Property;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.feature.type.Name;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,19 +71,19 @@ public class GetIsochronesProcess extends AbstractAnnotatedAlgorithm {
 
     private static Logger LOGGER = LoggerFactory.getLogger(GetIsochronesProcess.class);
     
-    private FeatureCollection<?, ?> output;
+    private FeatureCollection output;
 
-    private FeatureCollection<?, ?> inputEpicenter;
+    private FeatureCollection inputEpicenter;
 
     @ComplexDataInput(
             identifier = "epicenter", binding = GTVectorDataBinding.class)
-    public void setEpicenter(FeatureCollection<?, ?> inputEpicenter) {
+    public void setEpicenter(FeatureCollection inputEpicenter) {
         this.inputEpicenter = inputEpicenter;
     }
 
     @ComplexDataOutput(
             identifier = "isochrones", binding = GTVectorDataBinding.class)
-    public FeatureCollection<?, ?> getOutput() {
+    public FeatureCollection getOutput() {
         return this.output;
     }
 
@@ -99,6 +101,8 @@ public class GetIsochronesProcess extends AbstractAnnotatedAlgorithm {
             earthquakeSimulationDBConnector.connectToDB(connectionURL, username, password);
         } catch (SQLException e) {
             LOGGER.error("Could not connect to database.", e);
+        } catch (ClassNotFoundException e) {
+            LOGGER.error("Could not find postgresql driver class.");
         }
         
         Property idProperty = inputEpicenter.features().next().getProperty("id");
@@ -107,55 +111,69 @@ public class GetIsochronesProcess extends AbstractAnnotatedAlgorithm {
         
         try {
             Map<String, String> timestampIsochroneMap = earthquakeSimulationDBConnector.getIsochrones(id);
+
+            SimpleFeatureType featureType = createFeatureType(id);
             
-            List<SimpleFeature> featureList = new ArrayList<>();
-            
-            SimpleFeatureTypeBuilder builder = new SimpleFeatureTypeBuilder();
-            builder.setName("Feature-"+id);
-            builder.setCRS(DefaultGeographicCRS.WGS84);
-
-            builder.add("the_geom", MultiLineString.class);
-            builder.add("arrival_time", Integer.class);
-
-            // build the type
-            SimpleFeatureType featureType = builder.buildFeatureType();
-            
-            for (Iterator<String> it = timestampIsochroneMap.keySet().iterator(); it.hasNext();) {
-
-                int i = 1;
-                
-                String timestamp = it.next();
-                String geometryString = timestampIsochroneMap.get(timestamp);
-                
-                Geometry geometry;
-                try {
-                    geometry = new WKTReader().read(geometryString);
-                } catch (ParseException e) {
-                    LOGGER.error("Could not parse geometry: " + geometryString, e);
-                    continue;
-                }
-
-                if (i == 1) {
-                    QName qname = GTHelper.createGML3SchemaForFeatureType(featureType);
-                    SchemaRepository.registerSchemaLocation(qname.getNamespaceURI(), qname.getLocalPart());
-                }
-
-                if (geometry != null) {
-                    SimpleFeature createdFeature = (SimpleFeature) GTHelper.createFeature(id, geometry, (SimpleFeatureType) featureType);
-                    createdFeature.setDefaultGeometry(geometry);
-                    createdFeature.setAttribute("arrival_time", timestamp);
-                    featureList.add(createdFeature);
-                } else {
-                    LOGGER.warn("GeometryCollections are not supported, or result null. Original dataset will be returned");
-                }
-                i++;
-            }
+            List<SimpleFeature> featureList = createFeatures(timestampIsochroneMap, featureType, id);
             
             output = new ListFeatureCollection(featureType, featureList);
             
         } catch (SQLException e) {
             LOGGER.error("Could not get icochrones for id: " + id, e);
         }
+    }
+    
+    public SimpleFeatureType createFeatureType(String id){
+        
+        SimpleFeatureTypeBuilder builder = new SimpleFeatureTypeBuilder();
+        String namespace = "http://www.52north.org/"+id;
+        Name name = new NameImpl(namespace, "Feature-"+id);
+        builder.setName(name);
+        builder.setCRS(DefaultGeographicCRS.WGS84);
+
+        builder.add("the_geom", MultiLineString.class);
+        builder.add("arrival_time", Double.class);
+
+        return builder.buildFeatureType();
+        
+    }
+    
+    public List<SimpleFeature> createFeatures(Map<String, String> timestampIsochroneMap, SimpleFeatureType featureType, String id){
+
+        List<SimpleFeature> featureList = new ArrayList<>();
+
+        int i = 1;
+        
+        for (Iterator<String> it = timestampIsochroneMap.keySet().iterator(); it.hasNext();) {
+            
+            String timestamp = it.next();
+            String geometryString = timestampIsochroneMap.get(timestamp);
+            
+            Geometry geometry;
+            try {
+                geometry = new WKTReader().read(geometryString);
+            } catch (ParseException e) {
+                LOGGER.error("Could not parse geometry: " + geometryString, e);
+                continue;
+            }
+
+            if (i == 1) {
+                QName qname = GTHelper.createGML3SchemaForFeatureType(featureType);
+                SchemaRepository.registerSchemaLocation(qname.getNamespaceURI(), qname.getLocalPart());
+            }
+
+            if (geometry != null) {
+                SimpleFeature createdFeature = (SimpleFeature) GTHelper.createFeature(id, geometry, (SimpleFeatureType) featureType);
+                createdFeature.setDefaultGeometry(geometry);
+                createdFeature.setAttribute("arrival_time", timestamp);
+                featureList.add(createdFeature);
+            } else {
+                LOGGER.warn("GeometryCollections are not supported, or result null. Original dataset will be returned");
+            }
+            i++;
+        }
+        
+        return featureList;
     }
 
 }

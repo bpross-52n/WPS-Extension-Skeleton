@@ -8,6 +8,11 @@
         <includeBaseDirectory>false</includeBaseDirectory>
         <dependencySets>
                 <dependencySet>
+			<includes>
+				<include>org.n52.project.riesgos:earthquake-simulation</include>
+				<include>org.n52.project.riesgos:earthquakesimulationdbconnector</include>
+				<include>org.postgresql:postgresql</include>
+			</includes>
                         <outputDirectory>deploy-to-wps</outputDirectory>
                 </dependencySet>
         </dependencySets>
