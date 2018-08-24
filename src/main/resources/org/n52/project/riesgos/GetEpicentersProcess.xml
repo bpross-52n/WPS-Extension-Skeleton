@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wps:ProcessDescriptions xmlns:wps="http://www.opengis.net/wps/1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ows="http://www.opengis.net/ows/1.1" xsi:schemaLocation="http://www.opengis.net/wps/1.0.0 http://schemas.opengis.net/wps/1.0.0/wpsDescribeProcess_response.xsd" xml:lang="en-US" service="WPS" version="1.0.0">
+  <ProcessDescription statusSupported="true" storeSupported="true" wps:processVersion="1.0.0">
+    <ows:Identifier>org.n52.project.riesgos.GetEpicentersProcess</ows:Identifier>
+    <ows:Title>org.n52.project.riesgos.GetEpicentersProcess</ows:Title>
+    <DataInputs>
+      <Input minOccurs="1" maxOccurs="1">
+        <ows:Identifier>input-boundingbox</ows:Identifier>
+        <ows:Title>input-boundingbox</ows:Title>
+        <BoundingBoxData>
+          <Default>
+            <CRS>EPSG:4326</CRS>
+          </Default>
+          <Supported>
+            <CRS>EPSG:4328</CRS>
+          </Supported>
+        </BoundingBoxData>
+      </Input>
+    </DataInputs>
+    <ProcessOutputs>
+      <Output>
+        <ows:Identifier>epicenters</ows:Identifier>
+        <ows:Title>epicenters</ows:Title>
+        <ows:Abstract>epicenters</ows:Abstract>
+        <ComplexOutput>
+          <Default>
+            <Format>
+              <MimeType>application/x-zipped-shp</MimeType>
+            </Format>
+          </Default>
+          <Supported>
+            <Format>
+              <MimeType>application/x-zipped-shp</MimeType>
+              <Encoding/>
+              <Schema/>
+            </Format>
+            <Format>
+              <MimeType>application/json</MimeType>
+              <Encoding/>
+              <Schema/>
+            </Format>
+            <Format>
+              <MimeType>application/vnd.geo+json</MimeType>
+              <Encoding/>
+              <Schema/>
+            </Format>
+          </Supported>
+        </ComplexOutput>
+      </Output>
+    </ProcessOutputs>
+  </ProcessDescription>
+</wps:ProcessDescriptions>

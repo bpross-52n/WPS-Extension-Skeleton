@@ -7,15 +7,19 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.apache.xmlbeans.impl.common.IOUtil;
 import org.geotools.data.collection.ListFeatureCollection;
 import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.feature.FeatureCollection;
 import org.junit.Test;
+import org.n52.project.riesgos.GetEpicentersProcess;
 import org.n52.project.riesgos.GetIsochronesProcess;
 import org.n52.wps.io.data.binding.complex.GTVectorDataBinding;
 import org.n52.wps.io.datahandler.generator.GTBinDirectorySHPGenerator;
@@ -23,6 +27,8 @@ import org.n52.wps.io.datahandler.generator.GTBinZippedSHPGenerator;
 import org.n52.wps.webapp.common.AbstractITClass;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
+
+import com.vividsolutions.jts.geom.Coordinate;
 
 public class CreateFeatureTest extends AbstractITClass {
 
@@ -102,6 +108,47 @@ public class CreateFeatureTest extends AbstractITClass {
         for (String string : attributeNameMap.keySet()) {
             System.out.println(string + " " + attributeNameMap.get(string));
         }
+    }
+    
+    @Test
+    public void testGetEpicenters() throws IOException{
+        
+        BufferedReader bufferedReader =
+                new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("epicenters.txt"), "UTF-8"));
+
+        GetEpicentersProcess process = new GetEpicentersProcess();
+
+        SimpleFeatureType featureType = process.createFeatureType(UUID.randomUUID().toString().substring(0, 5));
+        
+        Map<String, Coordinate> idCoordinateMap = new HashMap<>();
+
+        String line = null;
+
+        while ((line = bufferedReader.readLine()) != null) {
+            String[] splitStringArray = line.split(",");
+            
+            String id = splitStringArray[0];
+            
+            double longitude = Double.parseDouble(splitStringArray[1]);
+            double latitude = Double.parseDouble(splitStringArray[2]);
+            
+            idCoordinateMap.put(id, new Coordinate(longitude, latitude));
+        }
+        
+        FeatureCollection<?, ?> simpleFeatureCollection = process.createFeatureCollection(idCoordinateMap, featureType);
+        
+        InputStream in = new GTBinZippedSHPGenerator().generateStream(new
+        GTVectorDataBinding(simpleFeatureCollection),
+        "application/x-zipped-shp", null);
+       
+        File outputZip = File.createTempFile("" + System.currentTimeMillis(),
+        ".zip");
+       
+        OutputStream out = new FileOutputStream(outputZip);
+       
+        IOUtil.copyCompletely(in, out);
+       
+        System.out.println(outputZip.getAbsolutePath());
     }
 
 }

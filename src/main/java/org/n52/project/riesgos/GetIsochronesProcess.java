@@ -44,7 +44,6 @@ import org.n52.wps.io.GTHelper;
 import org.n52.wps.io.SchemaRepository;
 import org.n52.wps.io.data.binding.complex.GTVectorDataBinding;
 import org.n52.wps.server.AbstractAnnotatedAlgorithm;
-import org.opengis.feature.Property;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.Name;
@@ -64,9 +63,9 @@ import com.vividsolutions.jts.io.WKTReader;
  *
  */
 @Algorithm(
-        version = "0.1", abstrakt = "This process returns isochrones for tsunami waves based on an input epicenter.",
+        version = "0.1.0", abstrakt = "This process returns isochrones for tsunami waves based on an input epicenter.",
         title = "GetIsochrones process",
-        statusSupported = false, storeSupported = false)
+        statusSupported = true, storeSupported = true)
 public class GetIsochronesProcess extends AbstractAnnotatedAlgorithm {
 
     private static Logger LOGGER = LoggerFactory.getLogger(GetIsochronesProcess.class);
@@ -104,10 +103,8 @@ public class GetIsochronesProcess extends AbstractAnnotatedAlgorithm {
         } catch (ClassNotFoundException e) {
             LOGGER.error("Could not find postgresql driver class.");
         }
-        
-        Property idProperty = inputEpicenter.features().next().getProperty("id");
 
-        String id = (String) idProperty.getValue();
+        String id = (String) inputEpicenter.features().next().getIdentifier().getID();
         
         try {
             Map<String, String> timestampIsochroneMap = earthquakeSimulationDBConnector.getIsochrones(id);
