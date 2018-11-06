@@ -54,18 +54,13 @@ public class GetEpicentersProcess extends AbstractObservableAlgorithm{
         String maxLon = boundingBoxData.getUpperCorner()[1] +"";
         String minLat = boundingBoxData.getLowerCorner()[0] +"";
         String maxLat = boundingBoxData.getUpperCorner()[0] +"";
-//        
-//        String minLon = boundingBoxData.getLowerCorner()[0] +"";
-//        String maxLon = boundingBoxData.getUpperCorner()[0] +"";
-//        String minLat = boundingBoxData.getLowerCorner()[1] +"";
-//        String maxLat = boundingBoxData.getUpperCorner()[1] +"";
         
         EarthquakeSimulationDBConnector earthquakeSimulationDBConnector = new EarthquakeSimulationDBConnector();
         
         String username = "wave";
         String password = "tsunami";
 
-        String connectionURL = "jdbc:postgresql://postgres6.awi.de:5432/tsunami";
+        String connectionURL = "jdbc:postgresql://postgres6.awi.de:5432/riesgos";
 
         try {
             earthquakeSimulationDBConnector.connectToDB(connectionURL, username, password);
@@ -78,7 +73,7 @@ public class GetEpicentersProcess extends AbstractObservableAlgorithm{
         Map<String, Coordinate> idCoordinateMap = new HashMap<String, Coordinate>();
         
         try {
-            idCoordinateMap = earthquakeSimulationDBConnector.getEpicenterIDs(minLon, maxLon, minLat, maxLat);
+            idCoordinateMap = earthquakeSimulationDBConnector.getEpicenterIDsChile(minLon, maxLon, minLat, maxLat);
         } catch (SQLException e) {
             LOGGER.error("Could not create id coordinate map.", e);
             throw new ExceptionReport("Could not create id coordinate map.", ExceptionReport.NO_APPLICABLE_CODE);
@@ -110,9 +105,9 @@ public class GetEpicentersProcess extends AbstractObservableAlgorithm{
                 QName qname = GTHelper.createGML3SchemaForFeatureType(featureType);
                 SchemaRepository.registerSchemaLocation(qname.getNamespaceURI(), qname.getLocalPart());
             }
-                SimpleFeature createdFeature = (SimpleFeature) GTHelper.createFeature(id, point, featureType);
+                SimpleFeature createdFeature = (SimpleFeature) GTHelper.createFeature("" + i, point, featureType);
                 createdFeature.setDefaultGeometry(point);
-//                createdFeature.setAttribute("id", id);
+                createdFeature.setAttribute("scenario_id", id);
                 featureList.add(createdFeature);
             
             i++;
@@ -131,7 +126,7 @@ public class GetEpicentersProcess extends AbstractObservableAlgorithm{
         builder.setCRS(DefaultGeographicCRS.WGS84);
 
         builder.add("the_geom", Point.class);
-//        builder.add("id", String.class);
+        builder.add("scenario_id", String.class);
 
         return builder.buildFeatureType();
         

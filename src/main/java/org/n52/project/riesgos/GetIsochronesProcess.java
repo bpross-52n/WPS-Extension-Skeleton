@@ -22,19 +22,21 @@
  */
 package org.n52.project.riesgos;
 
+import java.io.ByteArrayInputStream;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
+import java.util.UUID;
 
 import javax.xml.namespace.QName;
 
 import org.geotools.data.collection.ListFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.feature.FeatureCollection;
-import org.geotools.feature.NameImpl;
-import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
-import org.geotools.referencing.crs.DefaultGeographicCRS;
+import org.geotools.geojson.feature.FeatureJSON;
+import org.geotools.referencing.CRS;
 import org.n52.project.riesgos.earthquakesimulation.EarthquakeSimulationDBConnector;
 import org.n52.wps.algorithm.annotation.Algorithm;
 import org.n52.wps.algorithm.annotation.ComplexDataInput;
@@ -44,16 +46,16 @@ import org.n52.wps.io.GTHelper;
 import org.n52.wps.io.SchemaRepository;
 import org.n52.wps.io.data.binding.complex.GTVectorDataBinding;
 import org.n52.wps.server.AbstractAnnotatedAlgorithm;
+import org.opengis.feature.Feature;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
-import org.opengis.feature.type.Name;
+import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.NoSuchAuthorityCodeException;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.MultiLineString;
-import com.vividsolutions.jts.io.ParseException;
-import com.vividsolutions.jts.io.WKTReader;
 
 /**
  * This process returns isochrones for tsunami waves based on an input
@@ -94,7 +96,7 @@ public class GetIsochronesProcess extends AbstractAnnotatedAlgorithm {
         String username = "wave";
         String password = "tsunami";
 
-        String connectionURL = "jdbc:postgresql://postgres6.awi.de:5432/tsunami";
+        String connectionURL = "jdbc:postgresql://postgres6.awi.de:5432/riesgos";
 
         try {
             earthquakeSimulationDBConnector.connectToDB(connectionURL, username, password);
@@ -104,73 +106,68 @@ public class GetIsochronesProcess extends AbstractAnnotatedAlgorithm {
             LOGGER.error("Could not find postgresql driver class.");
         }
 
-        String id = (String) inputEpicenter.features().next().getIdentifier().getID();
+        String id = (String) inputEpicenter.features().next().getProperty("scenario_id").getValue();
         
         try {
-            Map<String, String> timestampIsochroneMap = earthquakeSimulationDBConnector.getIsochrones(id);
-
-            SimpleFeatureType featureType = createFeatureType(id);
+            List<String> isochronesList = earthquakeSimulationDBConnector.getIsochronesChile(id);
             
-            List<SimpleFeature> featureList = createFeatures(timestampIsochroneMap, featureType, id);
+            output = createFeatures(isochronesList);
             
-            output = new ListFeatureCollection(featureType, featureList);
-            
-        } catch (SQLException e) {
+        } catch (SQLException | FactoryException e) {
             LOGGER.error("Could not get icochrones for id: " + id, e);
         }
     }
     
-    public SimpleFeatureType createFeatureType(String id){
+    public SimpleFeatureCollection createFeatures(List<String> geoJSONList) throws NoSuchAuthorityCodeException, FactoryException{
+
         
-        SimpleFeatureTypeBuilder builder = new SimpleFeatureTypeBuilder();
-        String namespace = "http://www.52north.org/"+id;
-        Name name = new NameImpl(namespace, "Feature-"+id);
-        builder.setName(name);
-        builder.setCRS(DefaultGeographicCRS.WGS84);
-
-        builder.add("the_geom", MultiLineString.class);
-        builder.add("arrival_time", Double.class);
-
-        return builder.buildFeatureType();
+        List<Feature> featureList = new ArrayList<>();
         
-    }
-    
-    public List<SimpleFeature> createFeatures(Map<String, String> timestampIsochroneMap, SimpleFeatureType featureType, String id){
-
-        List<SimpleFeature> featureList = new ArrayList<>();
-
-        int i = 1;
-        
-        for (Iterator<String> it = timestampIsochroneMap.keySet().iterator(); it.hasNext();) {
+        for (Iterator<String> it = geoJSONList.iterator(); it.hasNext();) {
             
-            String timestamp = it.next();
-            String geometryString = timestampIsochroneMap.get(timestamp);
+            String geometryString = it.next();
             
-            Geometry geometry;
+            FeatureCollection<?,?> features;
             try {
-                geometry = new WKTReader().read(geometryString);
-            } catch (ParseException e) {
+                features = new FeatureJSON().readFeatureCollection(new ByteArrayInputStream(geometryString.getBytes()));
+            } catch (Exception e) {
                 LOGGER.error("Could not parse geometry: " + geometryString, e);
                 continue;
             }
+            
+            featureList.addAll(Arrays.asList(features.toArray(new Feature[]{})));
+        }
+        
+        return createCorrectFeatureCollection(featureList);
+    }
 
-            if (i == 1) {
+    private SimpleFeatureCollection createCorrectFeatureCollection(List<Feature> featureList) throws NoSuchAuthorityCodeException, FactoryException {
+
+        //need mapping between textual categories and values
+
+        CoordinateReferenceSystem crs = CRS.decode("EPSG:4326");
+
+        List<SimpleFeature> simpleFeatureList = new ArrayList<SimpleFeature>();
+        SimpleFeatureType featureType = null;
+        Iterator<Feature> iterator = featureList.iterator();
+        String uuid = UUID.randomUUID().toString();
+        int i = 0;
+        while(iterator.hasNext()){
+            SimpleFeature feature = (SimpleFeature) iterator.next();
+            if(i==0){
+                featureType = GTHelper.createFeatureType(feature.getProperties(), (Geometry)feature.getDefaultGeometry(), uuid, crs);
                 QName qname = GTHelper.createGML3SchemaForFeatureType(featureType);
                 SchemaRepository.registerSchemaLocation(qname.getNamespaceURI(), qname.getLocalPart());
             }
+            SimpleFeature resultFeature = GTHelper.createFeature("ID"+i, (Geometry)feature.getDefaultGeometry(), featureType, feature.getProperties());
 
-            if (geometry != null) {
-                SimpleFeature createdFeature = (SimpleFeature) GTHelper.createFeature(id, geometry, (SimpleFeatureType) featureType);
-                createdFeature.setDefaultGeometry(geometry);
-                createdFeature.setAttribute("arrival_time", timestamp);
-                featureList.add(createdFeature);
-            } else {
-                LOGGER.warn("GeometryCollections are not supported, or result null. Original dataset will be returned");
-            }
+            simpleFeatureList.add(resultFeature);
             i++;
         }
-        
-        return featureList;
+
+        ListFeatureCollection resultFeatureCollection = new ListFeatureCollection(featureType, simpleFeatureList);
+        return resultFeatureCollection;
+
     }
 
 }
