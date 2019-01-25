@@ -23,6 +23,7 @@
 package org.n52.project.riesgos;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -38,6 +39,7 @@ import org.geotools.feature.FeatureCollection;
 import org.geotools.geojson.feature.FeatureJSON;
 import org.geotools.referencing.CRS;
 import org.n52.project.riesgos.earthquakesimulation.EarthquakeSimulationDBConnector;
+import org.n52.project.riesgos.util.PropertyUtil;
 import org.n52.wps.algorithm.annotation.Algorithm;
 import org.n52.wps.algorithm.annotation.ComplexDataInput;
 import org.n52.wps.algorithm.annotation.ComplexDataOutput;
@@ -46,6 +48,7 @@ import org.n52.wps.io.GTHelper;
 import org.n52.wps.io.SchemaRepository;
 import org.n52.wps.io.data.binding.complex.GTVectorDataBinding;
 import org.n52.wps.server.AbstractAnnotatedAlgorithm;
+import org.n52.wps.server.ExceptionReport;
 import org.opengis.feature.Feature;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -93,10 +96,22 @@ public class GetIsochronesProcess extends AbstractAnnotatedAlgorithm {
 
         EarthquakeSimulationDBConnector earthquakeSimulationDBConnector = new EarthquakeSimulationDBConnector();
         
-        String username = "wave";
-        String password = "tsunami";
+        String username = "";
+        String password = "";
 
-        String connectionURL = "jdbc:postgresql://postgres6.awi.de:5432/riesgos";
+        String connectionURL = "";
+        
+        try {
+			PropertyUtil propertyUtil = PropertyUtil.getInstance();
+			
+			username = propertyUtil.getUserName();
+			password = propertyUtil.getPassword();
+			connectionURL = propertyUtil.getConnectionURL();
+			
+		} catch (IOException e1) {
+			LOGGER.error("Could not get connection properties.");
+			return;
+		}
 
         try {
             earthquakeSimulationDBConnector.connectToDB(connectionURL, username, password);
