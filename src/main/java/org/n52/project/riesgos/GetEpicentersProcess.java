@@ -1,5 +1,6 @@
 package org.n52.project.riesgos;
 
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -15,6 +16,7 @@ import org.geotools.feature.NameImpl;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.n52.project.riesgos.earthquakesimulation.EarthquakeSimulationDBConnector;
+import org.n52.project.riesgos.util.PropertyUtil;
 import org.n52.wps.io.GTHelper;
 import org.n52.wps.io.SchemaRepository;
 import org.n52.wps.io.data.IData;
@@ -62,10 +64,21 @@ public class GetEpicentersProcess extends AbstractObservableAlgorithm{
         
         EarthquakeSimulationDBConnector earthquakeSimulationDBConnector = new EarthquakeSimulationDBConnector();
         
-        String username = "wave";
-        String password = "tsunami";
+        String username = "";
+        String password = "";
 
-        String connectionURL = "jdbc:postgresql://postgres6.awi.de:5432/tsunami";
+        String connectionURL = "";
+        
+        try {
+			PropertyUtil propertyUtil = PropertyUtil.getInstance();
+			
+			username = propertyUtil.getUserName();
+			password = propertyUtil.getPassword();
+			connectionURL = propertyUtil.getConnectionURL();
+			
+		} catch (IOException e1) {
+			throw new ExceptionReport("Could not get connection properties.", ExceptionReport.NO_APPLICABLE_CODE);
+		}
 
         try {
             earthquakeSimulationDBConnector.connectToDB(connectionURL, username, password);
